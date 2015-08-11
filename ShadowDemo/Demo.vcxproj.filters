@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{0880ad2b-5952-4075-81c5-f4bf91e1b8b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{2950a052-d1f4-4158-98aa-a4ed9abdb7e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{d062181b-01ed-41ea-9249-aa955f8c281f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PiplelineEntities">
+      <UniqueIdentifier>{3647400a-8f3f-488d-becd-448893bc6786}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects">
+      <UniqueIdentifier>{3f7abc47-f054-4f14-9347-d650f77fdd45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometries">
+      <UniqueIdentifier>{83560841-e93e-416f-83be-1a826cc8650c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameTimer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DUtil.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="MathUtility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoApp.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoBase.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>PiplelineEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>PiplelineEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStates.h">
+      <Filter>PiplelineEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="AABB.h">
+      <Filter>Geometries</Filter>
+    </ClInclude>
+    <ClInclude Include="BoundingSphere.h">
+      <Filter>Geometries</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GameTimer.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DUtil.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="MathUtility.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoApp.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoBase.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderStates.cpp">
+      <Filter>PiplelineEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="Vertex.cpp">
+      <Filter>PiplelineEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="Entry.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="AABB.cpp">
+      <Filter>Geometries</Filter>
+    </ClCompile>
+    <ClCompile Include="BoundingSphere.cpp">
+      <Filter>Geometries</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\DemoShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadowMap.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\DebugTexture.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
