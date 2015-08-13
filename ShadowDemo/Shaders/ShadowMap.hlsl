@@ -11,15 +11,15 @@ cbuffer cbPerFrame : register(b2)
 
 cbuffer cbPerObject: register(b3)
 {
-	float4x4 lightWVP;
+	float4x4 lightVP;
 };
 
 struct VS_INPUT
 {
 	float3 PosL : POSITION;
 	float3 NorL : NORMAL;
-	float2 Tex : TEXCOORD;
-	float3 TangentL : TANGENT;
+	row_major float4x4 World : WORLD;
+	uint InstanceId : SV_InstanceID;
 };
 
 struct PS_INPUT

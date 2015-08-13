@@ -28,8 +28,6 @@ cbuffer cbPerFrame : register( b2 )
 
 cbuffer cbPerObject: register( b3 )
 {
-    float4x4 matWorld;
-    float4x4 matWorldInvTranspose;
     float4x4 matWVP;
 	Material material;	
 	float4x4 lightWVPT;
@@ -37,10 +35,10 @@ cbuffer cbPerObject: register( b3 )
 
 struct VS_INPUT
 {
-    float3 PosL : POSITION;
-    float3 NorL : NORMAL;
-    float2 Tex : TEXCOORD;
-	float3 TangentL : TANGENT;
+	float3 PosL : POSITION;
+	float3 NorL : NORMAL;
+	row_major float4x4 World : WORLD;
+	uint InstanceId : SV_InstanceID;
 };
 
 struct PS_INPUT

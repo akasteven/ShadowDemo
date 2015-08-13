@@ -25,16 +25,14 @@ struct CBPerFrame
 
 struct CBPerObject
 {
-	XMMATRIX matWorld;
-	XMMATRIX matWorldInvTranspose;
-	XMMATRIX matWVP;
+	XMMATRIX matVP;
 	Material material;
-	XMMATRIX matLightWVPT;
+	XMMATRIX matLightVPT;
 };
 
 struct CBPerObjectShadow
 {
-	XMMATRIX lightWVP;
+	XMMATRIX lightVP;
 };
 
 struct CBPerFrameScreenQuad
@@ -287,8 +285,9 @@ void DemoApp::CreateScreenQuad()
 
 void DemoApp::CreateGeometry()
 {
-	//LoadModel("..//Resources//Perry.objx", &m_pVertexBuffer, &m_pIndexBuffer, md3dDevice, m_pAABB, numVertex, numTriangle);
-	CreateScreenQuad();
+
+
+	CreateScreenQuad();	
 }
 
 void DemoApp::CreateContantBuffers()
