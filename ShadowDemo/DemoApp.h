@@ -49,7 +49,6 @@ private:
 	ID3D11VertexShader * m_pDebugTextureVS;
 	ID3D11PixelShader * m_pDebugTexturePS;
 
-
 	ID3D11Buffer * m_pCBNeverChanges;
 	ID3D11Buffer * m_pCBOnResize;
 	ID3D11Buffer * m_pCBPerFrame;
@@ -60,14 +59,13 @@ private:
 	ID3D11Buffer* m_pScreenQuadVB;
 	ID3D11Buffer* m_pScreenQuadIB;
 
-
 	ID3D11Buffer * m_pVertexBuffer;
 	ID3D11Buffer * m_pIndexBuffer;
-	UINT numVertex;
-	UINT numTriangle;
+	ID3D11Buffer *m_pInstancedBuffer;
 
-	ID3D11ShaderResourceView * m_pTextureSRV;
-	ID3D11ShaderResourceView * m_pNormalMapSRV;
+	ID3D11Buffer * m_pGroundVertexBuffer;
+	ID3D11Buffer * m_pGroundIndexBuffer;
+
 	ID3D11ShaderResourceView * m_pDepthSRV;
 	ID3D11SamplerState * m_pSampleLinear;
 	ID3D11SamplerState * m_pSampleShadowMap;

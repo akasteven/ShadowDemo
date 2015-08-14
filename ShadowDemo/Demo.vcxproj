@@ -17,6 +17,7 @@
     <ClInclude Include="DemoApp.h" />
     <ClInclude Include="DemoBase.h" />
     <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="GeoGenerator.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="MathUtility.h" />
     <ClInclude Include="RenderStates.h" />
@@ -31,6 +32,7 @@
     <ClCompile Include="DemoBase.cpp" />
     <ClCompile Include="Entry.cpp" />
     <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="GeoGenerator.cpp" />
     <ClCompile Include="MathUtility.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="ShadowMap.cpp" />

@@ -72,6 +72,11 @@ namespace Vertex
 
 		XMFLOAT3 Tan;
 	};
+
+	struct VertexIns_Mat
+	{
+		XMMATRIX mat;
+	};
 }
 
 
@@ -83,7 +88,7 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC VertexPT[2];
 	static const D3D11_INPUT_ELEMENT_DESC VertexPNT[3];
 	static const D3D11_INPUT_ELEMENT_DESC VertexPNTTan[4];
-	static const D3D11_INPUT_ELEMENT_DESC VerterxPN_INS[6];
+	static const D3D11_INPUT_ELEMENT_DESC VertexPN_INS[6];
 };
 
 class InputLayouts
@@ -95,6 +100,6 @@ public:
 	static ID3D11InputLayout* VertexPT;     
 	static ID3D11InputLayout* VertexPNT;
 	static ID3D11InputLayout * VertexPNTTan;
-	static ID3D11InputLayout * VerterxPN_INS;
+	static ID3D11InputLayout * VertexPN_INS;
 };
 

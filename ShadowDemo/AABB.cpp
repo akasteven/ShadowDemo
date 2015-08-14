@@ -16,6 +16,7 @@ void AABB::BuildFromVertices(Vertex::VertexBase * vertex, int numVer)
 		Maxs = MathHelper::VectorMax(Maxs, vertex[i].Pos);
 		Mins = MathHelper::VectorMin(Maxs, vertex[i].Pos);
 	}
+	ComputeCenterExt();
 }
 
 void AABB::AddVertex(const Vertex::VertexBase & vertex)
