@@ -62,7 +62,7 @@ dcl_temps 3
 //   v6.x <- input.InstanceId; 
 //   o0.x <- <VS return value>.PosH.x; o0.y <- <VS return value>.PosH.y; o0.z <- <VS return value>.PosH.z; o0.w <- <VS return value>.PosH.w
 //
-#line 33 "D:\Projects\Demo\ShadowDemo\ShadowDemo\Shaders\ShadowMap.hlsl"
+#line 33 "D:\Demo\ShadowDemo\ShadowDemo\Shaders\ShadowMap.hlsl"
 mov r0.xyz, v0.xyzx  // r0.x <- posL.x; r0.y <- posL.y; r0.z <- posL.z
 ine r1.x, l(0, 0, 0, 0), cb3[4].x
 if_nz r1.x

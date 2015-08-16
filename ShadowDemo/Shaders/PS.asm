@@ -30,7 +30,7 @@ dcl_output o0.xyzw
 //   v3.x <- input.ShadowH.x; v3.y <- input.ShadowH.y; v3.z <- input.ShadowH.z; v3.w <- input.ShadowH.w; 
 //   o0.x <- <PS return value>.x; o0.y <- <PS return value>.y; o0.z <- <PS return value>.z; o0.w <- <PS return value>.w
 //
-#line 106 "D:\Projects\Demo\ShadowDemo\ShadowDemo\Shaders\DemoShader.hlsl"
+#line 106 "D:\Demo\ShadowDemo\ShadowDemo\Shaders\DemoShader.hlsl"
 nop 
 nop 
 nop 

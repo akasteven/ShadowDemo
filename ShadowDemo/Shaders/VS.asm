@@ -85,7 +85,7 @@ dcl_temps 5
 //   o1.x <- <VS return value>.PosW.x; o1.y <- <VS return value>.PosW.y; o1.z <- <VS return value>.PosW.z; 
 //   o0.x <- <VS return value>.PosH.x; o0.y <- <VS return value>.PosH.y; o0.z <- <VS return value>.PosH.z; o0.w <- <VS return value>.PosH.w
 //
-#line 87 "D:\Projects\Demo\ShadowDemo\ShadowDemo\Shaders\DemoShader.hlsl"
+#line 87 "D:\Demo\ShadowDemo\ShadowDemo\Shaders\DemoShader.hlsl"
 mov r0.xyz, v0.xyzx  // r0.x <- posL.x; r0.y <- posL.y; r0.z <- posL.z
 ine r1.x, l(0, 0, 0, 0), cb3[20].x
 if_nz r1.x
