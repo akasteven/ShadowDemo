@@ -623,7 +623,7 @@ void DemoApp::DrawScene()
 
 	md3dImmediateContext->IASetInputLayout(InputLayouts::VertexPN_INS);
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	md3dImmediateContext->RSSetState(RenderStates::CullClockwiseRS);
+	md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
 
 	//Update Per Object Constant Buffer
 	CBPerObject cbPerObj;
