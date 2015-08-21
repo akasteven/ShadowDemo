@@ -647,7 +647,7 @@ void DemoApp::DrawScene()
 	md3dImmediateContext->PSSetSamplers(0, 1, &m_pSampleLinear);
 	md3dImmediateContext->PSSetSamplers(1, 1, &m_pSampleShadowMap);
 
-	md3dImmediateContext->DrawIndexedInstanced(36, 6, 0, 0, 0);
+	//md3dImmediateContext->DrawIndexedInstanced(36, 6, 0, 0, 0);
 
 	UINT stride = sizeof(Vertex::VertexPNT);
 	UINT offset = 0;
@@ -661,7 +661,7 @@ void DemoApp::DrawScene()
 	cbPerObj.isInstancing = 0;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObject, 0, NULL, &cbPerObj, 0, 0);
 	md3dImmediateContext->PSSetShaderResources(0, 1, &m_pGroundSRV);
-	md3dImmediateContext->DrawIndexed(36, 0, 0);
+	md3dImmediateContext->DrawIndexed(6, 0, 0);
 
 	//Render mini window displaying shadow map
 	RenderMiniWindow();
