@@ -21,6 +21,7 @@ namespace Vertex
 		POSNORTEX ,
 		POSNORTEXTAN ,
 		POSNOR_INS ,
+		POSNORTEX_INS
 	};
 
 	struct VertexBase
@@ -89,6 +90,7 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC VertexPNT[3];
 	static const D3D11_INPUT_ELEMENT_DESC VertexPNTTan[4];
 	static const D3D11_INPUT_ELEMENT_DESC VertexPN_INS[6];
+	static const D3D11_INPUT_ELEMENT_DESC VertexPNT_INS[7];
 };
 
 class InputLayouts
@@ -102,5 +104,6 @@ public:
 	static ID3D11InputLayout* VertexPNT;
 	static ID3D11InputLayout * VertexPNTTan;
 	static ID3D11InputLayout * VertexPN_INS;
+	static ID3D11InputLayout * VertexPNT_INS;
 };
 

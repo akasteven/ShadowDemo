@@ -68,6 +68,8 @@ m_pGroundIndexBuffer(0),
 m_pScreenQuadVB(0),
 m_pScreenQuadIB(0),
 m_pDepthSRV(0),
+m_pGroundSRV(0),
+m_pPillarSRV(0),
 m_pSampleLinear(0),
 m_pSampleShadowMap(0),
 mTheta(-0.8f*MathHelper::Pi), 
@@ -118,10 +120,13 @@ DemoApp::~DemoApp()
 	ReleaseCOM(m_pShadowMapPS);
 	ReleaseCOM(m_pDebugTextureVS);
 	ReleaseCOM(m_pDebugTexturePS);
+	ReleaseCOM(m_pGroundSRV);
+	ReleaseCOM(m_pPillarSRV);
+
+
 	InputLayouts::DestroyAll();
 	RenderStates::DestroyAll();
 }
- 
 
 // ======= Dont need to change =======
 void DemoApp::OnResize()
@@ -193,7 +198,7 @@ void DemoApp::CreateShaders()
 	ID3DBlob *pVSBlob = NULL;
 	HR(LoadShaderBinaryFromFile("Shaders//vs.fxo", &pVSBlob));
 	HR(md3dDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader));
-	InputLayouts::InitLayout(md3dDevice, pVSBlob, Vertex::POSNOR_INS);
+	InputLayouts::InitLayout(md3dDevice, pVSBlob, Vertex::POSNORTEX_INS);
 
 	//Shadow map VS
 	ID3DBlob *pShadowVSBlob = NULL;
@@ -298,7 +303,7 @@ void DemoApp::CreateGeometry()
 	D3D11_BUFFER_DESC vertexDesc;
 	ZeroMemory(&vertexDesc, sizeof(vertexDesc));
 	vertexDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexDesc.ByteWidth = sizeof(Vertex::VertexPN) * pillar.vertices.size();
+	vertexDesc.ByteWidth = sizeof(Vertex::VertexPNT) * pillar.vertices.size();
 	vertexDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	vertexDesc.CPUAccessFlags = 0;
 	vertexDesc.MiscFlags = 0;
@@ -349,7 +354,7 @@ void DemoApp::CreateGeometry()
 
 	ZeroMemory(&vertexDesc, sizeof(vertexDesc));
 	vertexDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexDesc.ByteWidth = sizeof(Vertex::VertexPN) * ground.vertices.size();
+	vertexDesc.ByteWidth = sizeof(Vertex::VertexPNT) * ground.vertices.size();
 	vertexDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	vertexDesc.CPUAccessFlags = 0;
 	vertexDesc.MiscFlags = 0;
@@ -401,6 +406,9 @@ void DemoApp::CreateContantBuffers()
 
 void DemoApp::CreateSamplerStates()
 {
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"..//Resources//floor.dds", 0, 0, &m_pGroundSRV, 0));
+	HR(D3DX11CreateShaderResourceViewFromFile(md3dDevice, L"..//Resources//woodpillar.jpg", 0, 0, &m_pPillarSRV, 0));
+
 	D3D11_SAMPLER_DESC desc; 
 	ZeroMemory(&desc, sizeof(desc));
 	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -510,14 +518,14 @@ void DemoApp::RenderMiniWindow()
 void DemoApp::RenderShadowMap()
 {
 	//Draw pillars
-	UINT strides[2] = { sizeof(Vertex::VertexPN), sizeof(Vertex::VertexIns_Mat) };
+	UINT strides[2] = { sizeof(Vertex::VertexPNT), sizeof(Vertex::VertexIns_Mat) };
 	UINT offsets[2] = {0, 0};
 	ID3D11Buffer * buffers[2] = { m_pVertexBuffer, m_pInstancedBuffer };
 
 	md3dImmediateContext->IASetVertexBuffers(0, 2, buffers, strides, offsets);
 	md3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	md3dImmediateContext->IASetInputLayout(InputLayouts::VertexPN_INS);
+	md3dImmediateContext->IASetInputLayout(InputLayouts::VertexPNT_INS);
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	md3dImmediateContext->RSSetState(RenderStates::ShadowMapDepthRS);
 
@@ -530,7 +538,7 @@ void DemoApp::RenderShadowMap()
 	md3dImmediateContext->PSSetShader(m_pShadowMapPS, NULL, 0);
 	md3dImmediateContext->DrawIndexedInstanced(36, 6, 0, 0, 0);
 
-	UINT stride = sizeof(Vertex::VertexPN);
+	UINT stride = sizeof(Vertex::VertexPNT);
 	UINT offset = 0;
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &m_pGroundVertexBuffer, &stride, &offset);
 	md3dImmediateContext->IASetIndexBuffer(m_pGroundIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
@@ -604,14 +612,14 @@ void DemoApp::DrawScene()
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	//Set Buffers, Layout, Topology and Render States
-	UINT strides[2] = { sizeof(Vertex::VertexPN), sizeof(Vertex::VertexIns_Mat) };
+	UINT strides[2] = { sizeof(Vertex::VertexPNT), sizeof(Vertex::VertexIns_Mat) };
 	UINT offsets[2] = { 0, 0 };
 	ID3D11Buffer * buffers[2] = { m_pVertexBuffer, m_pInstancedBuffer };
 
 	md3dImmediateContext->IASetVertexBuffers(0, 2, buffers, strides, offsets);
 	md3dImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	md3dImmediateContext->IASetInputLayout(InputLayouts::VertexPN_INS);
+	md3dImmediateContext->IASetInputLayout(InputLayouts::VertexPNT_INS);
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
 
@@ -634,13 +642,14 @@ void DemoApp::DrawScene()
 
 	md3dImmediateContext->PSSetShader(m_pPixelShader, NULL, 0);
 	md3dImmediateContext->PSSetConstantBuffers(3, 1, &m_pCBPerObject);
-
+	md3dImmediateContext->PSSetShaderResources(0, 1, &m_pPillarSRV);
 	md3dImmediateContext->PSSetShaderResources(2, 1, &m_pDepthSRV);
+	md3dImmediateContext->PSSetSamplers(0, 1, &m_pSampleLinear);
 	md3dImmediateContext->PSSetSamplers(1, 1, &m_pSampleShadowMap);
 
 	md3dImmediateContext->DrawIndexedInstanced(36, 6, 0, 0, 0);
 
-	UINT stride = sizeof(Vertex::VertexPN);
+	UINT stride = sizeof(Vertex::VertexPNT);
 	UINT offset = 0;
 
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &m_pGroundVertexBuffer, &stride, &offset);
@@ -651,6 +660,7 @@ void DemoApp::DrawScene()
 
 	cbPerObj.isInstancing = 0;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObject, 0, NULL, &cbPerObj, 0, 0);
+	md3dImmediateContext->PSSetShaderResources(0, 1, &m_pGroundSRV);
 	md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 	//Render mini window displaying shadow map

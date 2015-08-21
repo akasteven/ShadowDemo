@@ -17,35 +17,60 @@ void GeoGenerator::GenCuboid(float w, float h, float d, Mesh & mesh)
 	float hh = h / 2.0f;
 	float hd = d / 2.0f;
 
-	Vertex::VertexPN v[8] = {
+	Vertex::VertexPNT v[24] = {
 
-		Vertex::VertexPN( -hw, -hh, -hd, -1.0f, -1.0f, -1.0f ),
-		Vertex::VertexPN( hw, -hh, -hd, 1.0f, -1.0f, -1.0f ),
-		Vertex::VertexPN( hw, hh, -hd, 1.0f, 1.0f, -1.0f ),
-		Vertex::VertexPN( -hw, hh, -hd, -1.0f, 1.0f, -1.0f ),
+		//front
+		Vertex::VertexPNT( -hw, -hh, -hd, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f ),
+		Vertex::VertexPNT( hw, -hh, -hd, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
+		Vertex::VertexPNT( hw, hh, -hd, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f ),
+		Vertex::VertexPNT( -hw, hh, -hd, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
 
-		Vertex::VertexPN( -hw, -hh, hd, -1.0f, -1.0f, 1.0f ),
-		Vertex::VertexPN( hw, -hh, hd, 1.0f, -1.0f, 1.0f ),
-		Vertex::VertexPN( hw, hh, hd, 1.0f, 1.0f, 1.0f ),
-		Vertex::VertexPN( -hw, hh, hd, -1.0f, 1.0f, 1.0f )
+		//back
+		Vertex::VertexPNT(-hw, -hh, hd, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f),
+		Vertex::VertexPNT( hw, -hh, hd, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f),
+		Vertex::VertexPNT( hw, hh, hd, 0.0f, 0.0f, 1.0f, 0.0f , 0.0f),
+		Vertex::VertexPNT( -hw, hh, hd, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f),
 
+		//top
+		Vertex::VertexPNT(-hw, hh, -hd, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
+		Vertex::VertexPNT(hw, hh, -hd, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f),
+		Vertex::VertexPNT(hw, hh, hd, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f),
+		Vertex::VertexPNT(-hw, hh, hd, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f),
+
+		//bottom
+		Vertex::VertexPNT(-hw, hh, -hd, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f),
+		Vertex::VertexPNT(hw, hh, -hd, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
+		Vertex::VertexPNT(hw, hh, hd, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f),
+		Vertex::VertexPNT(-hw, hh, hd, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
+
+		//left
+		Vertex::VertexPNT(-hw, -hh, hd, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
+		Vertex::VertexPNT(-hw, -hh, -hd, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
+		Vertex::VertexPNT(-hw, hh, -hd, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
+		Vertex::VertexPNT(-hw, hh, hd, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
+
+		//right
+		Vertex::VertexPNT(hw, -hh, hd, 1.0f, -1.0f, 0.0f, 1.0f, 1.0f),
+		Vertex::VertexPNT(hw, -hh, -hd, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f),
+		Vertex::VertexPNT(hw, hh, -hd, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f),
+		Vertex::VertexPNT(hw, hh, hd, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f),
 	};
-	mesh.vertices.assign( v, v + 8);
+	mesh.vertices.assign( v, v + 24);
 
 	DWORD i[36] = 
 	{
 		0, 1, 2,
 		0, 2, 3,
-		1, 5, 6,
-		1, 6, 2,
 		5, 4, 7,
 		5, 7, 6,
-		4, 0, 3,
-		4, 3, 7,
-		3, 2, 6,
-		3, 6, 7,
-		4, 5, 1,
-		4, 1, 0
+		8, 9, 10,
+		8, 10, 11,
+		13, 12, 15,
+		13, 15, 14,
+		16, 17, 18,
+		16, 18, 19,
+		21, 20, 23,
+		21, 23, 22
 	};
 
 	mesh.indices.assign( i , i + 36);

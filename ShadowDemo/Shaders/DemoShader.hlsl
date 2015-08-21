@@ -1,7 +1,10 @@
 #include "LightDef.hlsl"
 #include "SimpleLighting.hlsl"
 
+Texture2D txDiffuse: register(t0);
 Texture2D txShadowMap : register(t2);
+
+SamplerState samLinear : register (s0);
 SamplerComparisonState samShadowMap : register(s1);
 
 cbuffer cbNeverChanges : register( b0 )
@@ -36,6 +39,7 @@ struct VS_INPUT
 {
 	float3 PosL : POSITION;
 	float3 NorL : NORMAL;
+	float2 Tex : TEXCOORD;
 	row_major float4x4 World : WORLD;
 	uint InstanceId : SV_InstanceID;
 };
@@ -45,6 +49,7 @@ struct PS_INPUT
     float4 PosH : SV_POSITION;
     float3 PosW : POSITION;
     float3 NorW : NORMAL ;
+	float2 Tex : TEXCOORD;
 	float4 ShadowH : TEXCOORD1;
 };
 
@@ -91,6 +96,7 @@ PS_INPUT VS( VS_INPUT input )
 	output.NorW = mul(input.NorL, (float3x3)matWorldInvTranspose);
 	output.PosH = mul(float4(posL, 1.0f), matWVP);
 	output.ShadowH = mul(float4(posL, 1.0f), lightWVPT);
+	output.Tex = input.Tex;
     return output;
 }
 
@@ -112,10 +118,12 @@ float4 PS( PS_INPUT input) : SV_Target
 	ComputeDirectionalLight(material, DirLight, input.NorW, toEye, A, D, S);
 
 	ambient += A;
-	diffuse += D * PCF;
+	diffuse += D; //*PCF;
 	specular += S * PCF;
 
-	float4 litColor = (ambient + diffuse) + specular;
+	float texColor = txDiffuse.Sample(samLinear, input.Tex);
+
+	float4 litColor = texColor * (ambient + diffuse) + specular;
 	litColor.a = 1.0f;
 
 	return  litColor;

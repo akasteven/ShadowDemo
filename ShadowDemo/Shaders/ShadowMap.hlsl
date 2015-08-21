@@ -18,6 +18,7 @@ struct VS_INPUT
 {
 	float3 PosL : POSITION;
 	float3 NorL : NORMAL;
+	float2 Tex : TEXCOORD;
 	row_major float4x4 World : WORLD;
 	uint InstanceId : SV_InstanceID;
 };

@@ -66,6 +66,10 @@ private:
 	ID3D11Buffer * m_pGroundVertexBuffer;
 	ID3D11Buffer * m_pGroundIndexBuffer;
 
+	ID3D11ShaderResourceView * m_pGroundSRV; 
+	ID3D11ShaderResourceView * m_pPillarSRV;
+
+
 	ID3D11ShaderResourceView * m_pDepthSRV;
 	ID3D11SamplerState * m_pSampleLinear;
 	ID3D11SamplerState * m_pSampleShadowMap;
