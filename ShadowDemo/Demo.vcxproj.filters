@@ -54,7 +54,9 @@
     <ClInclude Include="BoundingSphere.h">
       <Filter>Geometries</Filter>
     </ClInclude>
-    <ClInclude Include="GeoGenerator.h" />
+    <ClInclude Include="GeoGenerator.h">
+      <Filter>Geometries</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameTimer.cpp">
@@ -90,7 +92,9 @@
     <ClCompile Include="BoundingSphere.cpp">
       <Filter>Geometries</Filter>
     </ClCompile>
-    <ClCompile Include="GeoGenerator.cpp" />
+    <ClCompile Include="GeoGenerator.cpp">
+      <Filter>Geometries</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\DemoShader.hlsl">

@@ -7,7 +7,6 @@ SamplerComparisonState samShadowMap : register(s1);
 cbuffer cbNeverChanges : register( b0 )
 {
 	DirectionalLight DirLight;
-	PointLight PLight;
 	float ShadowMapSize;
 	float3 pad3;
 };
@@ -29,8 +28,8 @@ cbuffer cbPerObject: register( b3 )
 	Material material;	
 	float4x4 matWorldInvTranspose;
 	float4x4 lightWVPT;
-	bool isInstancing;
-	float padding[3];
+	int isInstancing;
+	float3 padding;
 };
 
 struct VS_INPUT
@@ -85,7 +84,7 @@ PS_INPUT VS( VS_INPUT input )
 {
     PS_INPUT output = (PS_INPUT)0;
 	float3 posL = input.PosL;
-	if (isInstancing)
+	if ( isInstancing == 1)
 		posL = mul(float4(input.PosL, 1.0f), input.World).xyz;
 
 	output.PosW = mul(float4(posL, 1.0f), matWorld).xyz;
@@ -116,15 +115,9 @@ float4 PS( PS_INPUT input) : SV_Target
 	diffuse += D * PCF;
 	specular += S * PCF;
 
-	ComputePointLight(material, PLight, input.PosW, input.NorW, toEye, A, D, S);
-
-	ambient += A;
-	diffuse += D ;
-	specular += S ;
-
 	float4 litColor = (ambient + diffuse) + specular;
 	litColor.a = 1.0f;
 
-	return float4(1.0f, 0.0f, 0.0f, 1.0f);// litColor;
+	return  litColor;
 }
 

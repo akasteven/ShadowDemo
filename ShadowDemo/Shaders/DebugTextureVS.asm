@@ -52,7 +52,7 @@ dcl_temps 2
 //   o1.x <- <VS return value>.Tex.x; o1.y <- <VS return value>.Tex.y; 
 //   o0.x <- <VS return value>.PosH.x; o0.y <- <VS return value>.PosH.y; o0.z <- <VS return value>.PosH.z; o0.w <- <VS return value>.PosH.w
 //
-#line 28 "D:\Demo\ShadowDemo\ShadowDemo\Shaders\DebugTexture.hlsl"
+#line 28 "D:\Projects\Demo\ShadowDemo\ShadowDemo\Shaders\DebugTexture.hlsl"
 mov r0.xyz, v0.xyzx
 mov r0.w, l(1.000000)
 dp4 r1.x, r0.xyzw, cb0[0].xyzw  // r1.x <- vout.PosH.x

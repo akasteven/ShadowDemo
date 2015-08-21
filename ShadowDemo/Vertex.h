@@ -15,11 +15,12 @@ namespace Vertex
 	{
 		POS = 1,
 		POSCOL = 2,
-		POSNOR = 3,
-		POSTEX = 4,
-		POSNORTEX = 5,
-		POSNORTEXTAN = 6,
-		POSNOR_INS = 7,
+		POSNOL = 3,
+		POSNOR ,
+		POSTEX ,
+		POSNORTEX ,
+		POSNORTEXTAN ,
+		POSNOR_INS ,
 	};
 
 	struct VertexBase
@@ -79,13 +80,12 @@ namespace Vertex
 	};
 }
 
-
-
 class InputLayoutDesc
 {
 public:
 	// Init like const int A::a[4] = {0, 1, 2, 3}; in .cpp file.
 	static const D3D11_INPUT_ELEMENT_DESC VertexPT[2];
+	static const D3D11_INPUT_ELEMENT_DESC VertexPN[2];
 	static const D3D11_INPUT_ELEMENT_DESC VertexPNT[3];
 	static const D3D11_INPUT_ELEMENT_DESC VertexPNTTan[4];
 	static const D3D11_INPUT_ELEMENT_DESC VertexPN_INS[6];
@@ -98,6 +98,7 @@ public:
 	static void DestroyAll();
 
 	static ID3D11InputLayout* VertexPT;     
+	static ID3D11InputLayout * VertexPN;
 	static ID3D11InputLayout* VertexPNT;
 	static ID3D11InputLayout * VertexPNTTan;
 	static ID3D11InputLayout * VertexPN_INS;

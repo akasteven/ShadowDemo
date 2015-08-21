@@ -78,7 +78,7 @@ void RenderStates::InitAll(ID3D11Device* device)
 	shadowMapDepthDesc.DepthClipEnable = true;
 	shadowMapDepthDesc.DepthBias = 10000;
 	shadowMapDepthDesc.DepthBiasClamp = 0.0f;
-	shadowMapDepthDesc.SlopeScaledDepthBias = 2.0f;
+	shadowMapDepthDesc.SlopeScaledDepthBias = 4.0f;
 
 	HR(device->CreateRasterizerState(&shadowMapDepthDesc, &ShadowMapDepthRS));
 

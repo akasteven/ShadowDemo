@@ -50,7 +50,7 @@ dcl_temps 1
 //   v1.x <- pin.Tex.x; v1.y <- pin.Tex.y; 
 //   o0.x <- <PS return value>.x; o0.y <- <PS return value>.y; o0.z <- <PS return value>.z; o0.w <- <PS return value>.w
 //
-#line 36 "D:\Demo\ShadowDemo\ShadowDemo\Shaders\DebugTexture.hlsl"
+#line 36 "D:\Projects\Demo\ShadowDemo\ShadowDemo\Shaders\DebugTexture.hlsl"
 sample_indexable(texture2d)(float,float,float,float) r0.x, v1.xyxx, t0.xyzw, s0
 mov r0.xyz, r0.xxxx  // r0.z <- c.x
 itof o0.w, l(1)

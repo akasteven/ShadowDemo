@@ -21,6 +21,6 @@ dcl_globalFlags refactoringAllowed | skipOptimization
 // Initial variable locations:
 //   v0.x <- input.PosH.x; v0.y <- input.PosH.y; v0.z <- input.PosH.z; v0.w <- input.PosH.w
 //
-#line 42 "D:\Demo\ShadowDemo\ShadowDemo\Shaders\ShadowMap.hlsl"
+#line 42 "D:\Projects\Demo\ShadowDemo\ShadowDemo\Shaders\ShadowMap.hlsl"
 ret 
 // Approximately 1 instruction slots used

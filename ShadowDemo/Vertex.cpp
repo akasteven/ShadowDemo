@@ -8,6 +8,13 @@ const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::VertexPT[2] =
 	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 };
 
+const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::VertexPN[2] =
+{
+	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+};
+
+
 const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::VertexPNT[3] =
 {
 	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
@@ -38,6 +45,7 @@ ID3D11InputLayout* InputLayouts::VertexPT = 0;
 ID3D11InputLayout* InputLayouts::VertexPNT = 0;
 ID3D11InputLayout * InputLayouts::VertexPNTTan = 0;
 ID3D11InputLayout * InputLayouts::VertexPN_INS = 0;
+ID3D11InputLayout * InputLayouts::VertexPN = 0;
 
 void InputLayouts::InitLayout(ID3D11Device* device, ID3DBlob * blob, VERTEXFORMAT format)
 {
@@ -46,6 +54,10 @@ void InputLayouts::InitLayout(ID3D11Device* device, ID3DBlob * blob, VERTEXFORMA
 	case POS:
 		break;
 	case POSCOL:
+		break;
+	case POSNOR:
+		HR(device->CreateInputLayout(InputLayoutDesc::VertexPN, 2, blob->GetBufferPointer(),
+			blob->GetBufferSize(), &VertexPN));
 		break;
 	case POSTEX:
 		HR(device->CreateInputLayout(InputLayoutDesc::VertexPT, 2, blob->GetBufferPointer(),
@@ -74,5 +86,6 @@ void InputLayouts::DestroyAll()
 	ReleaseCOM(VertexPNT);
 	ReleaseCOM(VertexPNTTan);
 	ReleaseCOM(VertexPN_INS);
+	ReleaseCOM(VertexPN);
 }
 

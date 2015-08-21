@@ -8,7 +8,6 @@
 struct CBNeverChanges
 {
 	DirectionalLight dirLight;
-	PointLight pointLight;
 	float shadowMapSize;
 	XMFLOAT3 pad3;
 };
@@ -31,15 +30,15 @@ struct CBPerObject
 	Material material;
 	XMMATRIX matWorldInvTranspose;
 	XMMATRIX matLightWVPT;
-	bool isInstancing;
-	float padding[3];
+	int isInstancing;
+	XMFLOAT3 padding;
 };
 
 struct CBPerObjectShadow
 {
 	XMMATRIX lightWVP;
-	bool isInstancing;
-	float padding[3];
+	int isInstancing;
+	XMFLOAT3 padding;
 };
 
 struct CBPerFrameScreenQuad
@@ -71,9 +70,9 @@ m_pScreenQuadIB(0),
 m_pDepthSRV(0),
 m_pSampleLinear(0),
 m_pSampleShadowMap(0),
-mTheta(-0.5f*MathHelper::Pi), 
-mPhi(0.5f*MathHelper::Pi), 
-mRadius(40.0f),
+mTheta(-0.8f*MathHelper::Pi), 
+mPhi(0.4f*MathHelper::Pi), 
+mRadius(60.0f),
 m_pShadowMap(0),
 mShadowMapSize(2048),
 m_pAABB(0)
@@ -129,6 +128,8 @@ void DemoApp::OnResize()
 {
 	DemoBase::OnResize();
 	m_Proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 100.0f);
+	md3dImmediateContext->VSSetConstantBuffers(1, 1, &m_pCBOnResize);
+	md3dImmediateContext->PSSetConstantBuffers(1, 1, &m_pCBOnResize);
 }
 
 void DemoApp::OnMouseDown(WPARAM btnState, int x, int y)
@@ -183,14 +184,7 @@ void DemoApp::CreateLights()
 	mDirLight.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	mDirLight.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 	mDirLight.Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	mDirLight.Direction = XMFLOAT3(1.0f, -0.5f, 0.5f);
-
-	mPointLight.Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	mPointLight.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
-	mPointLight.Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	mPointLight.Position = XMFLOAT3(80.0f, 0.0f, -80.0f);
-	mPointLight.Range = 500.0f;
-	mPointLight.Att = XMFLOAT3(1.0f, 0.2f, 0.0f);
+	mDirLight.Direction = XMFLOAT3(1.0f, -1.0f, 0.5f);
 }
 
 void DemoApp::CreateShaders()
@@ -311,7 +305,7 @@ void DemoApp::CreateGeometry()
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	ZeroMemory(&vertexData, sizeof(vertexData));
-	vertexData.pSysMem = &pillar.vertices;
+	vertexData.pSysMem = &pillar.vertices[0];
 	HR(md3dDevice->CreateBuffer(&vertexDesc, &vertexData, &m_pVertexBuffer));
 
 	D3D11_BUFFER_DESC indexDesc;
@@ -324,7 +318,7 @@ void DemoApp::CreateGeometry()
 
 	D3D11_SUBRESOURCE_DATA indexData;
 	ZeroMemory(&indexData, sizeof(indexData));
-	indexData.pSysMem = &pillar.indices;
+	indexData.pSysMem = &pillar.indices[0];
 	HR(md3dDevice->CreateBuffer(&indexDesc, &indexData, &m_pIndexBuffer));
 
 	//Create pillars per instance data
@@ -332,7 +326,7 @@ void DemoApp::CreateGeometry()
 	Vertex::VertexIns_Mat trans;
 	for (int i = 0; i < 6; i++)
 	{
-		trans.mat = XMMatrixTranslation(0.0f, 8.0f, i * 8.0f);
+		trans.mat = XMMatrixTranslation(0.0f, 8.0f, i * 8.0f - 24.0f);
 		matWorld.push_back(trans);
 	}
 
@@ -346,12 +340,12 @@ void DemoApp::CreateGeometry()
 
 	D3D11_SUBRESOURCE_DATA instanceData;
 	ZeroMemory(&instanceData, sizeof(instanceData));
-	instanceData.pSysMem = &matWorld;
+	instanceData.pSysMem = &matWorld[0];
 	HR(md3dDevice->CreateBuffer(&instanceDesc, &instanceData, &m_pInstancedBuffer));
 
 	//Create ground
 	GeoGenerator::Mesh ground;
-	GeoGenerator::GenCuboid(60, 2, 60, ground);
+	GeoGenerator::GenCuboid(100, 2, 100, ground);
 
 	ZeroMemory(&vertexDesc, sizeof(vertexDesc));
 	vertexDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -361,7 +355,7 @@ void DemoApp::CreateGeometry()
 	vertexDesc.MiscFlags = 0;
 
 	ZeroMemory(&vertexData, sizeof(vertexData));
-	vertexData.pSysMem = &ground.vertices;
+	vertexData.pSysMem = &ground.vertices[0];
 	HR(md3dDevice->CreateBuffer(&vertexDesc, &vertexData, &m_pGroundVertexBuffer));
 
 	ZeroMemory(&indexDesc, sizeof(indexDesc));
@@ -372,9 +366,8 @@ void DemoApp::CreateGeometry()
 	indexDesc.MiscFlags = 0;
 
 	ZeroMemory(&indexData, sizeof(indexData));
-	indexData.pSysMem = &ground.indices;
+	indexData.pSysMem = &ground.indices[0];
 	HR(md3dDevice->CreateBuffer(&indexDesc, &indexData, &m_pGroundIndexBuffer));
-
 
 	CreateScreenQuad();	
 }
@@ -433,11 +426,12 @@ void DemoApp::SetUpSceneConsts()
 	//Set Invariant Constant Buffer
 	CBNeverChanges cbNeverChanges;
 	cbNeverChanges.dirLight = mDirLight;
-	cbNeverChanges.pointLight = mPointLight;
 	cbNeverChanges.shadowMapSize = static_cast<float>(mShadowMapSize);
 	md3dImmediateContext->UpdateSubresource(m_pCBNeverChanges, 0, NULL, &cbNeverChanges, 0, 0);
+	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_pCBNeverChanges);
+	md3dImmediateContext->PSSetConstantBuffers(0, 1, &m_pCBNeverChanges);
 
-	m_Proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 100.0f);
+	m_Proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
 
 	BuildShadowMapMatrices();
 }
@@ -447,44 +441,12 @@ void DemoApp::CreateRenderStates()
 	RenderStates::InitAll(md3dDevice);
 }
 
-void DemoApp::RenderMiniWindow()
-{
-	//Set Buffers, Layout, Topology and Render States
-	UINT stride = sizeof(Vertex::VertexPNT);
-	UINT offset = 0;
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &m_pScreenQuadVB, &stride, &offset);
-	md3dImmediateContext->IASetIndexBuffer(m_pScreenQuadIB, DXGI_FORMAT_R32_UINT, 0);
-	md3dImmediateContext->IASetInputLayout(InputLayouts::VertexPNT);
-	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
-
-	//Resize mini window and translate to upper left corner
-	XMMATRIX scale = XMMatrixScaling(1.0f / AspectRatio(), 1.0f, 1.0f);
-	XMMATRIX world = XMMATRIX(
-		0.25f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.25f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.25 / AspectRatio() - 1, 0.75f, 0.0f, 1.0f);
-
-	CBPerFrameScreenQuad cbScreenQuadPerFrame;
-	cbScreenQuadPerFrame.wvp = XMMatrixTranspose( scale * world );
-	md3dImmediateContext->UpdateSubresource(m_pCBPerFrameScreenQuad, 0, NULL, &cbScreenQuadPerFrame, 0, 0);
-
-	md3dImmediateContext->VSSetShader(m_pDebugTextureVS, NULL, 0);
-	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_pCBPerFrameScreenQuad);
-
-	md3dImmediateContext->PSSetShader(m_pDebugTexturePS, NULL, 0);
-	md3dImmediateContext->PSSetShaderResources(0, 1, &m_pDepthSRV);
-	md3dImmediateContext->PSSetSamplers(0, 1, &m_pSampleLinear);
-	md3dImmediateContext->DrawIndexed(6, 0, 0);
-}
-
 void DemoApp::BuildShadowMapMatrices()
 {
-	float aabbRadius = 50.0f;  // m_pAABB->GetRadius();
+	float aabbRadius = 90.0f;  // m_pAABB->GetRadius();
 	XMVECTOR lightDir = XMLoadFloat3(&mDirLight.Direction);
-	XMVECTOR lightPos = -1.2f * lightDir * aabbRadius;
-	XMFLOAT3 tar = XMFLOAT3(0.0f, 0.0f, 20.0f);
+	XMVECTOR lightPos = -1.0f * lightDir * aabbRadius;
+	XMFLOAT3 tar = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMVECTOR targetPos = XMLoadFloat3(&tar);  //  &m_pAABB->Center);
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -513,6 +475,38 @@ void DemoApp::BuildShadowMapMatrices()
 	 mLightVPT = mLightView*mLightProj*mLightViewport;
 }
 
+void DemoApp::RenderMiniWindow()
+{
+	//Set Buffers, Layout, Topology and Render States
+	UINT stride = sizeof(Vertex::VertexPNT);
+	UINT offset = 0;
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &m_pScreenQuadVB, &stride, &offset);
+	md3dImmediateContext->IASetIndexBuffer(m_pScreenQuadIB, DXGI_FORMAT_R32_UINT, 0);
+	md3dImmediateContext->IASetInputLayout(InputLayouts::VertexPNT);
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
+
+	//Resize mini window and translate to upper left corner
+	XMMATRIX scale = XMMatrixScaling(1.0f / AspectRatio(), 1.0f, 1.0f);
+	XMMATRIX world = XMMATRIX(
+		0.25f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.25f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.25 / AspectRatio() - 1, 0.75f, 0.0f, 1.0f);
+
+	CBPerFrameScreenQuad cbScreenQuadPerFrame;
+	cbScreenQuadPerFrame.wvp = XMMatrixTranspose(scale * world);
+	md3dImmediateContext->UpdateSubresource(m_pCBPerFrameScreenQuad, 0, NULL, &cbScreenQuadPerFrame, 0, 0);
+
+	md3dImmediateContext->VSSetShader(m_pDebugTextureVS, NULL, 0);
+	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_pCBPerFrameScreenQuad);
+
+	md3dImmediateContext->PSSetShader(m_pDebugTexturePS, NULL, 0);
+	md3dImmediateContext->PSSetShaderResources(0, 1, &m_pDepthSRV);
+	md3dImmediateContext->PSSetSamplers(0, 1, &m_pSampleLinear);
+	md3dImmediateContext->DrawIndexed(6, 0, 0);
+}
+
 void DemoApp::RenderShadowMap()
 {
 	//Draw pillars
@@ -529,7 +523,7 @@ void DemoApp::RenderShadowMap()
 
 	CBPerObjectShadow cbPerObjShadow;
 	cbPerObjShadow.lightWVP = XMMatrixTranspose(m_World * mLightView * mLightProj);
-	cbPerObjShadow.isInstancing = true;
+	cbPerObjShadow.isInstancing = 1;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObjShadow, 0, NULL, &cbPerObjShadow, 0, 0);
 	md3dImmediateContext->VSSetShader(m_pShadowMapVS, NULL, 0);
 	md3dImmediateContext->VSSetConstantBuffers(3, 1, &m_pCBPerObjShadow);
@@ -538,16 +532,12 @@ void DemoApp::RenderShadowMap()
 
 	UINT stride = sizeof(Vertex::VertexPN);
 	UINT offset = 0;
-	md3dImmediateContext->IASetVertexBuffers(0, 1, &m_pGroundVertexBuffer, & stride, &offset);
-	md3dImmediateContext->IASetIndexBuffer(m_pGroundIndexBuffer, DXGI_FORMAT_R32_FLOAT, 0);
+	md3dImmediateContext->IASetVertexBuffers(0, 1, &m_pGroundVertexBuffer, &stride, &offset);
+	md3dImmediateContext->IASetIndexBuffer(m_pGroundIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	m_World = XMMatrixTranslation(0.0f, 0.0f, 20.f);
 	cbPerObjShadow.lightWVP = XMMatrixTranspose(m_World * mLightView * mLightProj);
-	cbPerObjShadow.isInstancing = false;
+	cbPerObjShadow.isInstancing = 0;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObjShadow, 0, NULL, &cbPerObjShadow, 0, 0);
-	//md3dImmediateContext->VSSetShader(m_pShadowMapVS, NULL, 0);
-	//md3dImmediateContext->VSSetConstantBuffers(3, 1, &m_pCBPerObjShadow);
-	//md3dImmediateContext->PSSetShader(m_pShadowMapPS, NULL, 0);
 	md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 }
@@ -580,7 +570,8 @@ void DemoApp::UpdateScene(float dt)
 	CBPerFrame cbPerFrame;
 	cbPerFrame.eyePos = XMFLOAT3(x, y, z);
 	md3dImmediateContext->UpdateSubresource(m_pCBPerFrame, 0, NULL, &cbPerFrame, 0, 0);
-	
+	md3dImmediateContext->VSSetConstantBuffers(2, 1, &m_pCBPerFrame);
+	md3dImmediateContext->PSSetConstantBuffers(2, 1, &m_pCBPerFrame);
 	m_World = XMMatrixIdentity();
 
 	XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
@@ -612,7 +603,6 @@ void DemoApp::DrawScene()
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, clearColor);
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-
 	//Set Buffers, Layout, Topology and Render States
 	UINT strides[2] = { sizeof(Vertex::VertexPN), sizeof(Vertex::VertexIns_Mat) };
 	UINT offsets[2] = { 0, 0 };
@@ -625,13 +615,13 @@ void DemoApp::DrawScene()
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
 
-	//Update Per Object Constant Buffer
+	////Update Per Object Constant Buffer
 	CBPerObject cbPerObj;
 	cbPerObj.matWorld = XMMatrixTranspose(m_World);
 	cbPerObj.matWorldInvTranspose = XMMatrixTranspose(MathHelper::InverseTranspose(m_World));
 	cbPerObj.matWVP = XMMatrixTranspose(m_World * m_View * m_Proj);
 	cbPerObj.matLightWVPT = XMMatrixTranspose(m_World * mLightVPT);
-	cbPerObj.isInstancing = true;
+	cbPerObj.isInstancing = 1;
 	cbPerObj.material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	cbPerObj.material.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 	cbPerObj.material.Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
@@ -640,16 +630,11 @@ void DemoApp::DrawScene()
 
 	//Set Shaders and Resources
 	md3dImmediateContext->VSSetShader(m_pVertexShader, NULL, 0);
-	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_pCBNeverChanges);
-	md3dImmediateContext->VSSetConstantBuffers(1, 1, &m_pCBOnResize);
-	md3dImmediateContext->VSSetConstantBuffers(2, 1, &m_pCBPerFrame);
 	md3dImmediateContext->VSSetConstantBuffers(3, 1, &m_pCBPerObject);
 
 	md3dImmediateContext->PSSetShader(m_pPixelShader, NULL, 0);
-	md3dImmediateContext->PSSetConstantBuffers(0, 1, &m_pCBNeverChanges);
-	md3dImmediateContext->PSSetConstantBuffers(1, 1, &m_pCBOnResize);
-	md3dImmediateContext->PSSetConstantBuffers(2, 1, &m_pCBPerFrame);
 	md3dImmediateContext->PSSetConstantBuffers(3, 1, &m_pCBPerObject);
+
 	md3dImmediateContext->PSSetShaderResources(2, 1, &m_pDepthSRV);
 	md3dImmediateContext->PSSetSamplers(1, 1, &m_pSampleShadowMap);
 
@@ -657,16 +642,14 @@ void DemoApp::DrawScene()
 
 	UINT stride = sizeof(Vertex::VertexPN);
 	UINT offset = 0;
+
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &m_pGroundVertexBuffer, &stride, &offset);
-	md3dImmediateContext->IASetIndexBuffer(m_pGroundIndexBuffer, DXGI_FORMAT_R32_FLOAT, 0);
+	md3dImmediateContext->IASetIndexBuffer(m_pGroundIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	
+	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
 
-	m_World = XMMatrixTranslation(0.0f, 0.0f, 20.f);
-	cbPerObj.matWorld = XMMatrixTranspose(m_World);
-	cbPerObj.matWorldInvTranspose = XMMatrixTranspose(MathHelper::InverseTranspose(m_World));
-	cbPerObj.matWVP = XMMatrixTranspose(m_World * m_View * m_Proj);
-	cbPerObj.matLightWVPT = XMMatrixTranspose(m_World * mLightVPT);
-	cbPerObj.isInstancing = false;
-
+	cbPerObj.isInstancing = 0;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObject, 0, NULL, &cbPerObj, 0, 0);
 	md3dImmediateContext->DrawIndexed(36, 0, 0);
 

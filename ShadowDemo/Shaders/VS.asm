@@ -21,8 +21,8 @@
 //   } material;                        // Offset:  128 Size:    64 [unused]
 //   float4x4 matWorldInvTranspose;     // Offset:  192 Size:    64
 //   float4x4 lightWVPT;                // Offset:  256 Size:    64
-//   bool isInstancing;                 // Offset:  320 Size:     4
-//   float padding[3];                  // Offset:  336 Size:    36 [unused]
+//   int isInstancing;                  // Offset:  320 Size:     4
+//   float3 padding;                    // Offset:  324 Size:    12 [unused]
 //
 // }
 //
@@ -85,9 +85,9 @@ dcl_temps 5
 //   o1.x <- <VS return value>.PosW.x; o1.y <- <VS return value>.PosW.y; o1.z <- <VS return value>.PosW.z; 
 //   o0.x <- <VS return value>.PosH.x; o0.y <- <VS return value>.PosH.y; o0.z <- <VS return value>.PosH.z; o0.w <- <VS return value>.PosH.w
 //
-#line 87 "D:\Demo\ShadowDemo\ShadowDemo\Shaders\DemoShader.hlsl"
+#line 86 "D:\Projects\Demo\ShadowDemo\ShadowDemo\Shaders\DemoShader.hlsl"
 mov r0.xyz, v0.xyzx  // r0.x <- posL.x; r0.y <- posL.y; r0.z <- posL.z
-ine r1.x, l(0, 0, 0, 0), cb3[20].x
+ieq r1.x, cb3[20].x, l(1)
 if_nz r1.x
   mul r1.xyz, v0.xxxx, v2.xyzx
   mul r2.xyz, v0.yyyy, v3.xyzx
