@@ -127,6 +127,6 @@ float4 PS( PS_INPUT input) : SV_Target
 	//float4 litColor = texColor * (ambient + diffuse) + specular;
 	litColor.a = 1.0f;
 
-	return litColor;
+	return float4(1.0f, 0.0f, 0.0f, 1.0f); // litColor;
 }
 

@@ -38,10 +38,10 @@ void GeoGenerator::GenCuboid(float w, float h, float d, Mesh & mesh)
 		Vertex::VertexPNT(-hw, hh, hd, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f),
 
 		//bottom
-		Vertex::VertexPNT(-hw, hh, -hd, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f),
-		Vertex::VertexPNT(hw, hh, -hd, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
-		Vertex::VertexPNT(hw, hh, hd, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f),
-		Vertex::VertexPNT(-hw, hh, hd, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
+		Vertex::VertexPNT(-hw, -hh, -hd, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f),
+		Vertex::VertexPNT(hw, -hh, -hd, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f),
+		Vertex::VertexPNT(hw, -hh, hd, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f),
+		Vertex::VertexPNT(-hw, -hh, hd, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f),
 
 		//left
 		Vertex::VertexPNT(-hw, -hh, hd, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
@@ -55,7 +55,7 @@ void GeoGenerator::GenCuboid(float w, float h, float d, Mesh & mesh)
 		Vertex::VertexPNT(hw, hh, -hd, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f),
 		Vertex::VertexPNT(hw, hh, hd, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f),
 	};
-	mesh.vertices.assign( v, v + 24);
+	mesh.vertices.assign(v, v + 24);
 
 	DWORD i[36] = 
 	{

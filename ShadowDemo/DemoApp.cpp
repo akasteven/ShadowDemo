@@ -72,8 +72,10 @@ m_pGroundSRV(0),
 m_pPillarSRV(0),
 m_pSampleLinear(0),
 m_pSampleShadowMap(0),
-mTheta(-0.8f*MathHelper::Pi), 
-mPhi(0.4f*MathHelper::Pi), 
+//mTheta(-0.8f*MathHelper::Pi), 
+//mPhi(0.4f*MathHelper::Pi), 
+mTheta(MathHelper::Pi),
+mPhi(MathHelper::Pi),
 mRadius(60.0f),
 m_pShadowMap(0),
 mShadowMapSize(2048),
@@ -365,7 +367,7 @@ void DemoApp::CreateGeometry()
 
 	ZeroMemory(&indexDesc, sizeof(indexDesc));
 	indexDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexDesc.ByteWidth = sizeof(DWORD)* ground.indices.size();
+	indexDesc.ByteWidth = sizeof(DWORD) * ground.indices.size();
 	indexDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	indexDesc.CPUAccessFlags = 0;
 	indexDesc.MiscFlags = 0;
@@ -536,7 +538,7 @@ void DemoApp::RenderShadowMap()
 	md3dImmediateContext->VSSetShader(m_pShadowMapVS, NULL, 0);
 	md3dImmediateContext->VSSetConstantBuffers(3, 1, &m_pCBPerObjShadow);
 	md3dImmediateContext->PSSetShader(m_pShadowMapPS, NULL, 0);
-	md3dImmediateContext->DrawIndexedInstanced(36, 6, 0, 0, 0);
+	//md3dImmediateContext->DrawIndexedInstanced(36, 6, 0, 0, 0);
 
 	UINT stride = sizeof(Vertex::VertexPNT);
 	UINT offset = 0;
@@ -546,7 +548,7 @@ void DemoApp::RenderShadowMap()
 	cbPerObjShadow.lightWVP = XMMatrixTranspose(m_World * mLightView * mLightProj);
 	cbPerObjShadow.isInstancing = 0;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObjShadow, 0, NULL, &cbPerObjShadow, 0, 0);
-	md3dImmediateContext->DrawIndexed(36, 0, 0);
+	md3dImmediateContext->DrawIndexed(3, 0, 0);
 
 }
 
@@ -660,8 +662,8 @@ void DemoApp::DrawScene()
 
 	cbPerObj.isInstancing = 0;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObject, 0, NULL, &cbPerObj, 0, 0);
-	md3dImmediateContext->PSSetShaderResources(0, 1, &m_pGroundSRV);
-	md3dImmediateContext->DrawIndexed(6, 0, 0);
+	//md3dImmediateContext->PSSetShaderResources(0, 1, &m_pGroundSRV);
+	md3dImmediateContext->DrawIndexed(3, 0, 0);
 
 	//Render mini window displaying shadow map
 	RenderMiniWindow();
