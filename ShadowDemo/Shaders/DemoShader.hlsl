@@ -108,7 +108,7 @@ float4 PS( PS_INPUT input) : SV_Target
 	toEye /= distToEye;
 	
 
-	//float PCF = ShadowFactorPCF(samShadowMap, txShadowMap, input.ShadowH);
+	float PCF = ShadowFactorPCF(samShadowMap, txShadowMap, input.ShadowH);
 
 	float4 ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float4 diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -118,15 +118,14 @@ float4 PS( PS_INPUT input) : SV_Target
 	ComputeDirectionalLight(material, DirLight, input.NorW, toEye, A, D, S);
 
 	ambient += A;
-	diffuse += D; //*PCF;
-	specular += S;// *PCF;
+	diffuse += D * PCF;
+	specular += S * PCF;
 
 	float texColor = txDiffuse.Sample(samLinear, input.Tex);
 
-	float4 litColor = (ambient + diffuse) + specular;
-	//float4 litColor = texColor * (ambient + diffuse) + specular;
+	float4 litColor = texColor * (ambient + diffuse) + specular;
 	litColor.a = 1.0f;
 
-	return float4(1.0f, 0.0f, 0.0f, 1.0f); // litColor;
+	return litColor;
 }
 

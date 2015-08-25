@@ -94,5 +94,11 @@ private:
 	PointLight mPointLight;
 
 	AABB *m_pAABB;
+
+	//Scene Parameter
+	UINT instanceCnt;
+	float pillarSize;
+	float grndLength;
+	float grndWidth;
 };
 

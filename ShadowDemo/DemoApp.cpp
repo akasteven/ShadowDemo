@@ -72,15 +72,17 @@ m_pGroundSRV(0),
 m_pPillarSRV(0),
 m_pSampleLinear(0),
 m_pSampleShadowMap(0),
-//mTheta(-0.8f*MathHelper::Pi), 
-//mPhi(0.4f*MathHelper::Pi), 
-mTheta(MathHelper::Pi),
-mPhi(MathHelper::Pi),
-mRadius(60.0f),
+mTheta( -0.49f*MathHelper::Pi), 
+mPhi(0.48f*MathHelper::Pi), 
 m_pShadowMap(0),
-mShadowMapSize(2048),
-m_pAABB(0)
+mShadowMapSize(4096),
+m_pAABB(0),
+instanceCnt(100),
+pillarSize(4.0f),
+grndWidth(100.0f)
 {
+	grndLength = (instanceCnt + 4)* pillarSize * 2.0f;
+	mRadius = grndLength * 0.51f;
 	this->mMainWndCaption = L"Demo";
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
@@ -125,7 +127,6 @@ DemoApp::~DemoApp()
 	ReleaseCOM(m_pGroundSRV);
 	ReleaseCOM(m_pPillarSRV);
 
-
 	InputLayouts::DestroyAll();
 	RenderStates::DestroyAll();
 }
@@ -134,7 +135,7 @@ DemoApp::~DemoApp()
 void DemoApp::OnResize()
 {
 	DemoBase::OnResize();
-	m_Proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 100.0f);
+	m_Proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
 	md3dImmediateContext->VSSetConstantBuffers(1, 1, &m_pCBOnResize);
 	md3dImmediateContext->PSSetConstantBuffers(1, 1, &m_pCBOnResize);
 }
@@ -177,7 +178,7 @@ void DemoApp::OnMouseMove(WPARAM btnState, int x, int y)
 		mRadius += dx - dy;
 
 		// Restrict the radius.
-		mRadius = MathHelper::Clamp(mRadius, 35.0f, 75.0f);
+		mRadius = MathHelper::Clamp(mRadius, 20.0f, 2000.0f);
 	}
 
 	mLastMousePos.x = x;
@@ -331,9 +332,9 @@ void DemoApp::CreateGeometry()
 	//Create pillars per instance data
 	std::vector<Vertex::VertexIns_Mat> matWorld;
 	Vertex::VertexIns_Mat trans;
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < instanceCnt; i++)
 	{
-		trans.mat = XMMatrixTranslation(0.0f, 8.0f, i * 8.0f - 24.0f);
+		trans.mat = XMMatrixTranslation(0.0f, 8.0f, i *pillarSize * 2.0f - instanceCnt * pillarSize);
 		matWorld.push_back(trans);
 	}
 
@@ -352,29 +353,33 @@ void DemoApp::CreateGeometry()
 
 	//Create ground
 	GeoGenerator::Mesh ground;
-	GeoGenerator::GenCuboid(100, 2, 100, ground);
+	GeoGenerator::GenCuboid(grndWidth, 2, grndLength, ground);
 
-	ZeroMemory(&vertexDesc, sizeof(vertexDesc));
-	vertexDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexDesc.ByteWidth = sizeof(Vertex::VertexPNT) * ground.vertices.size();
-	vertexDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	vertexDesc.CPUAccessFlags = 0;
-	vertexDesc.MiscFlags = 0;
+	D3D11_BUFFER_DESC grndDesc;
+	ZeroMemory(&grndDesc, sizeof(grndDesc));
+	grndDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	grndDesc.ByteWidth = sizeof(Vertex::VertexPNT) * ground.vertices.size();
+	grndDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	grndDesc.CPUAccessFlags = 0;
+	grndDesc.MiscFlags = 0;
 
-	ZeroMemory(&vertexData, sizeof(vertexData));
-	vertexData.pSysMem = &ground.vertices[0];
-	HR(md3dDevice->CreateBuffer(&vertexDesc, &vertexData, &m_pGroundVertexBuffer));
+	D3D11_SUBRESOURCE_DATA grndVerData;
+	ZeroMemory(&grndVerData, sizeof(grndVerData));
+	grndVerData.pSysMem = &ground.vertices[0];
+	HR(md3dDevice->CreateBuffer(&grndDesc, &grndVerData, &m_pGroundVertexBuffer));
 
-	ZeroMemory(&indexDesc, sizeof(indexDesc));
-	indexDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexDesc.ByteWidth = sizeof(DWORD) * ground.indices.size();
-	indexDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	indexDesc.CPUAccessFlags = 0;
-	indexDesc.MiscFlags = 0;
+	D3D11_BUFFER_DESC grndIdxDesc;
+	ZeroMemory(&grndIdxDesc, sizeof(grndIdxDesc));
+	grndIdxDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	grndIdxDesc.ByteWidth = sizeof(DWORD)* ground.indices.size();
+	grndIdxDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	grndIdxDesc.CPUAccessFlags = 0;
+	grndIdxDesc.MiscFlags = 0;
 
-	ZeroMemory(&indexData, sizeof(indexData));
-	indexData.pSysMem = &ground.indices[0];
-	HR(md3dDevice->CreateBuffer(&indexDesc, &indexData, &m_pGroundIndexBuffer));
+	D3D11_SUBRESOURCE_DATA grndIdxData;
+	ZeroMemory(&grndIdxData, sizeof(grndIdxData));
+	grndIdxData.pSysMem = &ground.indices[0];
+	HR(md3dDevice->CreateBuffer(&grndIdxDesc, &grndIdxData, &m_pGroundIndexBuffer));
 
 	CreateScreenQuad();	
 }
@@ -453,13 +458,15 @@ void DemoApp::CreateRenderStates()
 
 void DemoApp::BuildShadowMapMatrices()
 {
-	float aabbRadius = 90.0f;  // m_pAABB->GetRadius();
+	//Calculate the radius of the scene's bounding sphere. Approximately use the half of ground plane diagonal.
+	float aabbRadius = sqrt(grndLength * grndLength + grndWidth * grndWidth) / 2.0f ;
+
+	//Set up light parameter
 	XMVECTOR lightDir = XMLoadFloat3(&mDirLight.Direction);
 	XMVECTOR lightPos = -1.0f * lightDir * aabbRadius;
 	XMFLOAT3 tar = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMVECTOR targetPos = XMLoadFloat3(&tar);  //  &m_pAABB->Center);
+	XMVECTOR targetPos = XMLoadFloat3(&tar); 
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
 	mLightView = XMMatrixLookAtLH(lightPos, targetPos, up);
 
 	// Transform bounding sphere to light space.
@@ -538,7 +545,7 @@ void DemoApp::RenderShadowMap()
 	md3dImmediateContext->VSSetShader(m_pShadowMapVS, NULL, 0);
 	md3dImmediateContext->VSSetConstantBuffers(3, 1, &m_pCBPerObjShadow);
 	md3dImmediateContext->PSSetShader(m_pShadowMapPS, NULL, 0);
-	//md3dImmediateContext->DrawIndexedInstanced(36, 6, 0, 0, 0);
+	md3dImmediateContext->DrawIndexedInstanced(36, instanceCnt, 0, 0, 0);
 
 	UINT stride = sizeof(Vertex::VertexPNT);
 	UINT offset = 0;
@@ -548,7 +555,7 @@ void DemoApp::RenderShadowMap()
 	cbPerObjShadow.lightWVP = XMMatrixTranspose(m_World * mLightView * mLightProj);
 	cbPerObjShadow.isInstancing = 0;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObjShadow, 0, NULL, &cbPerObjShadow, 0, 0);
-	md3dImmediateContext->DrawIndexed(3, 0, 0);
+	md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 }
 
@@ -573,7 +580,7 @@ bool DemoApp::Init()
 void DemoApp::UpdateScene(float dt)
 {
 	float x = mRadius*sinf(mPhi)*cosf(mTheta);
-	float z = mRadius*sinf(mPhi)*sinf(mTheta) + 20.0f;
+	float z = mRadius*sinf(mPhi)*sinf(mTheta) ;
 	float y = mRadius*cosf(mPhi);
 
 	//Update Per Frame Constant Buffer
@@ -623,7 +630,7 @@ void DemoApp::DrawScene()
 
 	md3dImmediateContext->IASetInputLayout(InputLayouts::VertexPNT_INS);
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
+	md3dImmediateContext->RSSetState(RenderStates::CullClockwiseRS);
 
 	////Update Per Object Constant Buffer
 	CBPerObject cbPerObj;
@@ -649,7 +656,7 @@ void DemoApp::DrawScene()
 	md3dImmediateContext->PSSetSamplers(0, 1, &m_pSampleLinear);
 	md3dImmediateContext->PSSetSamplers(1, 1, &m_pSampleShadowMap);
 
-	//md3dImmediateContext->DrawIndexedInstanced(36, 6, 0, 0, 0);
+	md3dImmediateContext->DrawIndexedInstanced(36, instanceCnt, 0, 0, 0);
 
 	UINT stride = sizeof(Vertex::VertexPNT);
 	UINT offset = 0;
@@ -658,12 +665,13 @@ void DemoApp::DrawScene()
 	md3dImmediateContext->IASetIndexBuffer(m_pGroundIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	md3dImmediateContext->RSSetState(RenderStates::NoCullRS);
+	md3dImmediateContext->RSSetState(RenderStates::CullClockwiseRS);
 
 	cbPerObj.isInstancing = 0;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObject, 0, NULL, &cbPerObj, 0, 0);
-	//md3dImmediateContext->PSSetShaderResources(0, 1, &m_pGroundSRV);
-	md3dImmediateContext->DrawIndexed(3, 0, 0);
+	md3dImmediateContext->PSSetShaderResources(0, 1, &m_pGroundSRV);
+
+	md3dImmediateContext->DrawIndexed(36, 0, 0);
 
 	//Render mini window displaying shadow map
 	RenderMiniWindow();

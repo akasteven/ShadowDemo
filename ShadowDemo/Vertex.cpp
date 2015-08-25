@@ -92,7 +92,6 @@ void InputLayouts::InitLayout(ID3D11Device* device, ID3DBlob * blob, VERTEXFORMA
 	case POSNORTEX_INS:
 		HR(device->CreateInputLayout(InputLayoutDesc::VertexPNT_INS, 7, blob->GetBufferPointer(),
 			blob->GetBufferSize(), &VertexPNT_INS));
-
 		break;
 	default:
 		break;

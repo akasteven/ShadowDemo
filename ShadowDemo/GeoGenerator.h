@@ -13,7 +13,7 @@ public:
 
 	struct Mesh
 	{
-		std::vector<Vertex::VertexPN> vertices;
+		std::vector<Vertex::VertexPNT> vertices;
 		std::vector<DWORD> indices;
 	};
 
