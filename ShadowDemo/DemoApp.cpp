@@ -38,9 +38,9 @@ pillarSize(4.0f),
 grndWidth(100.0f)
 {
 	grndLength = (instanceCnt + 4)* pillarSize * 2.0f;
-	mRadius = grndLength * 0.51f;
-	mTheta = float(-0.49f*MathHelper::Pi);
-	mPhi = float(0.48f*MathHelper::Pi);
+	mRadius = grndLength * 0.55f;
+	mTheta = float(-0.47f*MathHelper::Pi);
+	mPhi = float(0.47f*MathHelper::Pi);
 	this->mMainWndCaption = L"Demo";
 }
 
@@ -84,7 +84,7 @@ DemoApp::~DemoApp()
 void DemoApp::OnResize()
 {
 	DemoBase::OnResize();
-	m_Proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
+	mProj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
 	md3dImmediateContext->VSSetConstantBuffers(1, 1, &m_pCBOnResize);
 	md3dImmediateContext->PSSetConstantBuffers(1, 1, &m_pCBOnResize);
 }
@@ -198,7 +198,7 @@ void DemoApp::CreateGeometry()
 {
 	//Pillars per vertex data
 	GeoGenerator::Mesh pillar;
-	GeoGenerator::GenCuboid(pillarSize, pillarSize * 4.0f, pillarSize, pillar);
+	GeoGenerator::GenCuboid(pillarSize, pillarSize * 8.0f, pillarSize, pillar);
 
 	//Vertex
 	D3D11_BUFFER_DESC vertexDesc;
@@ -231,7 +231,7 @@ void DemoApp::CreateGeometry()
 	Vertex::VertexIns_Mat trans;
 	for (int i = 0; i < instanceCnt; i++)
 	{
-		trans.mat = XMMatrixTranslation(0.0f, pillarSize  * 2.0f , i *pillarSize * 2.0f - instanceCnt * pillarSize);
+		trans.mat = XMMatrixTranslation(0.0f, pillarSize  * 4.0f , i *pillarSize * 2.0f - instanceCnt * pillarSize);
 		matWorld.push_back(trans);
 	}
 	vertexDesc.ByteWidth = sizeof(Vertex::VertexIns_Mat) * matWorld.size();
@@ -317,7 +317,7 @@ void DemoApp::SetUpSceneConsts()
 	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_pCBNeverChanges);
 	md3dImmediateContext->PSSetConstantBuffers(0, 1, &m_pCBNeverChanges);
 
-	m_Proj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
+	mProj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
 
 	BuildShadowMapMatrices();
 }
@@ -408,7 +408,7 @@ void DemoApp::RenderShadowMap()
 	md3dImmediateContext->RSSetState(RenderStates::ShadowMapDepthRS);
 
 	CBPerObjectShadow cbPerObjShadow;
-	cbPerObjShadow.lightWVP = XMMatrixTranspose(m_World * mLightView * mLightProj);
+	cbPerObjShadow.lightWVP = XMMatrixTranspose(mWorld * mLightView * mLightProj);
 	cbPerObjShadow.isInstancing = 1;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObjShadow, 0, NULL, &cbPerObjShadow, 0, 0);
 	md3dImmediateContext->VSSetShader(m_pShadowMapVS, NULL, 0);
@@ -421,7 +421,7 @@ void DemoApp::RenderShadowMap()
 	UINT offset = 0;
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &m_pGroundVertexBuffer, &stride, &offset);
 	md3dImmediateContext->IASetIndexBuffer(m_pGroundIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	cbPerObjShadow.lightWVP = XMMatrixTranspose(m_World * mLightView * mLightProj);
+	cbPerObjShadow.lightWVP = XMMatrixTranspose(mWorld * mLightView * mLightProj);
 	cbPerObjShadow.isInstancing = 0;
 	md3dImmediateContext->UpdateSubresource(m_pCBPerObjShadow, 0, NULL, &cbPerObjShadow, 0, 0);
 
@@ -457,13 +457,13 @@ void DemoApp::UpdateScene(float dt)
 	md3dImmediateContext->UpdateSubresource(m_pCBPerFrame, 0, NULL, &cbPerFrame, 0, 0);
 	md3dImmediateContext->VSSetConstantBuffers(2, 1, &m_pCBPerFrame);
 	md3dImmediateContext->PSSetConstantBuffers(2, 1, &m_pCBPerFrame);
-	m_World = XMMatrixIdentity();
+	mWorld = XMMatrixIdentity();
 
 	XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
 	XMVECTOR target = XMVectorZero();
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-	m_View = XMMatrixLookAtLH(pos, target, up);
+	mView = XMMatrixLookAtLH(pos, target, up);
 }
 
 void DemoApp::DrawScene()
@@ -499,10 +499,10 @@ void DemoApp::DrawScene()
 
 	//Update Per Object Constant Buffer
 	CBPerObject cbPerObj;
-	cbPerObj.matWorld = XMMatrixTranspose(m_World);
-	cbPerObj.matWorldInvTranspose = XMMatrixTranspose(MathHelper::InverseTranspose(m_World));
-	cbPerObj.matWVP = XMMatrixTranspose(m_World * m_View * m_Proj);
-	cbPerObj.matLightWVPT = XMMatrixTranspose(m_World * mLightVPT);
+	cbPerObj.matWorld = XMMatrixTranspose(mWorld);
+	cbPerObj.matWorldInvTranspose = XMMatrixTranspose(MathHelper::InverseTranspose(mWorld));
+	cbPerObj.matWVP = XMMatrixTranspose(mWorld * mView * mProj);
+	cbPerObj.matLightWVPT = XMMatrixTranspose(mWorld * mLightVPT);
 	cbPerObj.isInstancing = 1;
 	cbPerObj.material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	cbPerObj.material.Diffuse = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);

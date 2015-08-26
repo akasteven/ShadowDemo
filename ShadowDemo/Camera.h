@@ -1,0 +1,45 @@
+#pragma once
+
+#include <d3dx11.h>
+#include <xnamath.h>
+
+class Camera
+{
+public:
+	Camera();
+	~Camera();
+
+	//Camera setups
+	void Setup(float fov, float asp, float nz, float fz);
+	void Update();
+
+	//Camera movements
+	void MoveForward( float x );
+	void MoveRight(float x);
+	void Elevate(float x);
+
+	void Pitch(float x);
+	void Roll(float x);
+	void Yaw(float x);
+
+	XMMATRIX GetViewMatrix() const;
+	XMMATRIX GetProjMatrix() const;
+	XMMATRIX GetViewProjMatrix() const;
+
+private:
+
+	XMMATRIX mView;
+	XMMATRIX mProj;
+	XMMATRIX mViewProj;
+
+	float fov;
+	float aspectRatio;
+	float nearZ;
+	float farZ;
+
+	XMFLOAT3 mPos;
+	XMFLOAT3 mRight;
+	XMFLOAT3 mUp;
+	XMFLOAT3 mLook;
+};
+

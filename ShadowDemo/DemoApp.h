@@ -76,9 +76,9 @@ private:
 	XMMATRIX mLightView;
 	XMMATRIX mLightProj;
 	XMMATRIX mLightViewport;
-	XMMATRIX m_World;
-	XMMATRIX m_View;
-	XMMATRIX m_Proj;
+	XMMATRIX mWorld;
+	XMMATRIX mView;
+	XMMATRIX mProj;
 
 	//Lights
 	DirectionalLight mDirLight;
