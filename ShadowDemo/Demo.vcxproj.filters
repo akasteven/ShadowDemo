@@ -60,7 +60,9 @@
     <ClInclude Include="ConstantBufferDef.h">
       <Filter>PipelineDefs</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Camera.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameTimer.cpp">
@@ -99,7 +101,9 @@
     <ClCompile Include="GeoGenerator.cpp">
       <Filter>Geometries</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Camera.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\DemoShader.hlsl">

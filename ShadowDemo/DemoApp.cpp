@@ -84,7 +84,8 @@ DemoApp::~DemoApp()
 void DemoApp::OnResize()
 {
 	DemoBase::OnResize();
-	mProj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
+	camera->Setup(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
+	//mProj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
 	md3dImmediateContext->VSSetConstantBuffers(1, 1, &m_pCBOnResize);
 	md3dImmediateContext->PSSetConstantBuffers(1, 1, &m_pCBOnResize);
 }
@@ -317,7 +318,8 @@ void DemoApp::SetUpSceneConsts()
 	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_pCBNeverChanges);
 	md3dImmediateContext->PSSetConstantBuffers(0, 1, &m_pCBNeverChanges);
 
-	mProj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
+	camera->Setup(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
+	camera->SetPosition(XMFLOAT3(30.0f, 30.0f, -450.0f));
 
 	BuildShadowMapMatrices();
 }
@@ -447,23 +449,28 @@ bool DemoApp::Init()
 
 void DemoApp::UpdateScene(float dt)
 {
-	float x = mRadius*sinf(mPhi)*cosf(mTheta);
-	float z = mRadius*sinf(mPhi)*sinf(mTheta) ;
-	float y = mRadius*cosf(mPhi);
+	if (GetAsyncKeyState('W') & 0x8000)
+		camera->MoveForward(10.0f * dt);
+	if (GetAsyncKeyState('S') & 0x8000)
+		camera->MoveForward(-10.0f*dt);
+	if (GetAsyncKeyState('D') & 0x8000)
+		camera->MoveRight(10.0f *dt);
+	if (GetAsyncKeyState('A') & 0x8000)
+		camera->MoveRight(-10.0f *dt);
+	if (GetAsyncKeyState('E') & 0x8000)
+		camera->Elevate(10.0f *dt);
+	if (GetAsyncKeyState('Q') & 0x8000)
+		camera->Elevate(-10.0f *dt);
 
 	//Update Per Frame Constant Buffer
 	CBPerFrame cbPerFrame;
-	cbPerFrame.eyePos = XMFLOAT3(x, y, z);
+	cbPerFrame.eyePos = camera->GetPos();
 	md3dImmediateContext->UpdateSubresource(m_pCBPerFrame, 0, NULL, &cbPerFrame, 0, 0);
 	md3dImmediateContext->VSSetConstantBuffers(2, 1, &m_pCBPerFrame);
 	md3dImmediateContext->PSSetConstantBuffers(2, 1, &m_pCBPerFrame);
 	mWorld = XMMatrixIdentity();
 
-	XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-	XMVECTOR target = XMVectorZero();
-	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	mView = XMMatrixLookAtLH(pos, target, up);
+	camera->Update();
 }
 
 void DemoApp::DrawScene()
@@ -501,7 +508,7 @@ void DemoApp::DrawScene()
 	CBPerObject cbPerObj;
 	cbPerObj.matWorld = XMMatrixTranspose(mWorld);
 	cbPerObj.matWorldInvTranspose = XMMatrixTranspose(MathHelper::InverseTranspose(mWorld));
-	cbPerObj.matWVP = XMMatrixTranspose(mWorld * mView * mProj);
+	cbPerObj.matWVP = XMMatrixTranspose(mWorld * camera->GetViewProjMatrix());
 	cbPerObj.matLightWVPT = XMMatrixTranspose(mWorld * mLightVPT);
 	cbPerObj.isInstancing = 1;
 	cbPerObj.material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);

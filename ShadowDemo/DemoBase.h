@@ -6,6 +6,7 @@
 #include "D3DUtil.h"
 #include "GameTimer.h"
 #include "Light.h"
+#include "Camera.h"
 
 class DemoBase
 {
@@ -29,6 +30,7 @@ public:
 	virtual void OnMouseDown(WPARAM btnState, int x, int y);
 	virtual void OnMouseUp(WPARAM btnState, int x, int y);
 	virtual void OnMouseMove(WPARAM btnState, int x, int y);
+	virtual void OnKeyDown();
 
 protected:
 
@@ -47,6 +49,7 @@ protected:
 	UINT      m4xMsaaQuality;
 
 	GameTimer mTimer;
+	Camera *camera;
 
 	ID3D11Device* md3dDevice;
 	ID3D11DeviceContext* md3dImmediateContext;
@@ -55,7 +58,6 @@ protected:
 	ID3D11RenderTargetView* mRenderTargetView;
 	ID3D11DepthStencilView* mDepthStencilView;
 	D3D11_VIEWPORT mScreenViewport;
-
 
 	std::wstring mMainWndCaption;
 	D3D_DRIVER_TYPE md3dDriverType;

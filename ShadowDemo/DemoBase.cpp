@@ -48,28 +48,25 @@ void DemoBase::OnMouseMove(WPARAM btnState, int x, int y)
 		float dx = XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
 		float dy = XMConvertToRadians(0.25f*static_cast<float>(y - mLastMousePos.y));
 
-		// Update angles based on input to orbit camera around box.
-		mTheta -= dx;
-		mPhi -= dy;
-
-		// Restrict the angle mPhi.
-		mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
+		camera->Pitch(dy);
+		camera->Yaw(dx);
 	}
-	else if ((btnState & MK_RBUTTON) != 0)
-	{
-		// Make each pixel correspond to 0.01 unit in the scene.
-		float dx = 0.1f*static_cast<float>(x - mLastMousePos.x);
-		float dy = 0.1f*static_cast<float>(y - mLastMousePos.y);
 
-		// Update the camera radius based on input.
-		mRadius += dx - dy;
-
-		// Restrict the radius.
-		mRadius = MathHelper::Clamp(mRadius, 1.0f, 10000.0f);
-	}
 
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
+}
+
+void DemoBase::OnKeyDown()
+{
+	//if (GetAsyncKeyState('W') & 0x8000)
+	//	camera->MoveForward(5.0f);
+	//if (GetAsyncKeyState('S') & 0x8000)
+	//	camera->MoveForward(-5.0f);
+	//if (GetAsyncKeyState('D') & 0x8000)
+	//	camera->MoveRight(5.0f);
+	//if (GetAsyncKeyState('A') & 0x8000)
+	//	camera->MoveRight(-5.0f);
 }
 
 LRESULT DemoBase::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -187,6 +184,9 @@ LRESULT DemoBase::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
+	case WM_KEYDOWN:
+		OnKeyDown();
+		return 0;
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -216,12 +216,19 @@ mPhi(0.48f*MathHelper::Pi)
 {
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
 	gd3dApp = this;
+	camera = new Camera();
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
 }
 
 DemoBase::~DemoBase()
 {
+	if (camera)
+	{
+		delete camera;
+		camera = NULL;
+	}
+	
 	ReleaseCOM(mRenderTargetView);
 	ReleaseCOM(mDepthStencilView);
 	ReleaseCOM(mSwapChain);

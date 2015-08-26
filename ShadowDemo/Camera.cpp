@@ -13,6 +13,16 @@ Camera::~Camera()
 {
 }
 
+void Camera::SetPosition(const XMFLOAT3 & p)
+{
+	mPos = p;
+}
+
+XMFLOAT3 Camera::GetPos() const
+{
+	return mPos;
+}
+
 void Camera::MoveForward( float x )
 {
 	XMVECTOR s = XMVectorReplicate(x);
@@ -32,7 +42,7 @@ void Camera::MoveRight(float x)
 void Camera::Elevate(float x)
 {
 	XMVECTOR s = XMVectorReplicate(x);
-	XMVECTOR u = XMLoadFloat3(&mUp);
+	XMVECTOR u = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMVECTOR p = XMLoadFloat3(&mPos);
 	XMStoreFloat3(&mPos, XMVectorMultiplyAdd(s, u, p));
 }
@@ -44,7 +54,6 @@ void Camera::Pitch(float x)
 	XMStoreFloat3(&mUp, XMVector3TransformNormal(XMLoadFloat3(&mUp), rotate));
 }
 
-
 void Camera::Roll(float x)
 {
 	XMMATRIX rotate = XMMatrixRotationAxis(XMLoadFloat3(&mLook), x);
@@ -54,7 +63,8 @@ void Camera::Roll(float x)
 
 void Camera::Yaw(float x)
 {
-	XMMATRIX rotate = XMMatrixRotationAxis(XMLoadFloat3(&mUp), x);
+	XMMATRIX rotate = XMMatrixRotationY(x);
+
 	XMStoreFloat3(&mRight, XMVector3TransformNormal(XMLoadFloat3(&mRight), rotate));
 	XMStoreFloat3(&mLook, XMVector3TransformNormal(XMLoadFloat3(&mLook), rotate));
 }
@@ -63,7 +73,6 @@ XMMATRIX Camera::GetViewMatrix() const
 {
 	return mView;
 }
-
 
 XMMATRIX Camera::GetProjMatrix() const
 {

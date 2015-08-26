@@ -12,6 +12,7 @@ public:
 	//Camera setups
 	void Setup(float fov, float asp, float nz, float fz);
 	void Update();
+	void SetPosition( const XMFLOAT3 & p);
 
 	//Camera movements
 	void MoveForward( float x );
@@ -25,6 +26,7 @@ public:
 	XMMATRIX GetViewMatrix() const;
 	XMMATRIX GetProjMatrix() const;
 	XMMATRIX GetViewProjMatrix() const;
+	XMFLOAT3 GetPos() const;
 
 private:
 
