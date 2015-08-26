@@ -3,7 +3,6 @@
 #include "DemoBase.h"
 
 class ShadowMap;
-class AABB;
 
 class DemoApp :
 	public DemoBase
@@ -16,10 +15,6 @@ public:
 	void OnResize();
 	void UpdateScene(float dt);
 	void DrawScene();
-
-	void OnMouseDown(WPARAM btnState, int x, int y);
-	void OnMouseUp(WPARAM btnState, int x, int y);
-	void OnMouseMove(WPARAM btnState, int x, int y);
 
 private:
 
@@ -42,6 +37,7 @@ private:
 
 private:
 
+	//Shaders
 	ID3D11VertexShader * m_pVertexShader;
 	ID3D11PixelShader * m_pPixelShader;
 	ID3D11VertexShader * m_pShadowMapVS;
@@ -49,6 +45,7 @@ private:
 	ID3D11VertexShader * m_pDebugTextureVS;
 	ID3D11PixelShader * m_pDebugTexturePS;
 
+	//Shader Constant Buffers
 	ID3D11Buffer * m_pCBNeverChanges;
 	ID3D11Buffer * m_pCBOnResize;
 	ID3D11Buffer * m_pCBPerFrame;
@@ -56,44 +53,40 @@ private:
 	ID3D11Buffer * m_pCBPerObjShadow;
 	ID3D11Buffer * m_pCBPerFrameScreenQuad;
 
+	//Vertex and Index Buffers
 	ID3D11Buffer* m_pScreenQuadVB;
 	ID3D11Buffer* m_pScreenQuadIB;
-
 	ID3D11Buffer * m_pVertexBuffer;
 	ID3D11Buffer * m_pIndexBuffer;
 	ID3D11Buffer *m_pInstancedBuffer;
-
 	ID3D11Buffer * m_pGroundVertexBuffer;
 	ID3D11Buffer * m_pGroundIndexBuffer;
 
+	//Shader Resources
 	ID3D11ShaderResourceView * m_pGroundSRV; 
 	ID3D11ShaderResourceView * m_pPillarSRV;
-
-
 	ID3D11ShaderResourceView * m_pDepthSRV;
+
+	//Sampler States
 	ID3D11SamplerState * m_pSampleLinear;
 	ID3D11SamplerState * m_pSampleShadowMap;
 
-	ShadowMap *m_pShadowMap;
-	int  mShadowMapSize;
+	//Matrices
 	XMMATRIX mLightVPT;
 	XMMATRIX mLightView;
 	XMMATRIX mLightProj;
 	XMMATRIX mLightViewport;
-
 	XMMATRIX m_World;
 	XMMATRIX m_View;
 	XMMATRIX m_Proj;
 
-	POINT mLastMousePos;
-	float mTheta;
-	float mPhi;
-	float mRadius;
-
+	//Lights
 	DirectionalLight mDirLight;
 	PointLight mPointLight;
 
-	AABB *m_pAABB;
+	//Shadow Map
+	ShadowMap *m_pShadowMap;
+	int  mShadowMapSize;
 
 	//Scene Parameter
 	UINT instanceCnt;

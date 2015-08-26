@@ -1,7 +1,5 @@
 #include "Vertex.h"
 
-using namespace Vertex;
-
 const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::VertexPT[2] =
 {
 	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -61,35 +59,35 @@ ID3D11InputLayout * InputLayouts::VertexPN_INS = 0;
 ID3D11InputLayout * InputLayouts::VertexPN = 0;
 ID3D11InputLayout * InputLayouts::VertexPNT_INS = 0;
 
-void InputLayouts::InitLayout(ID3D11Device* device, ID3DBlob * blob, VERTEXFORMAT format)
+void InputLayouts::InitLayout(ID3D11Device* device, ID3DBlob * blob, Vertex::VERTEXFORMAT format)
 {
 	switch (format)
 	{
-	case POS:
+	case Vertex::POS:
 		break;
-	case POSCOL:
+	case Vertex::POSCOL:
 		break;
-	case POSNOR:
+	case Vertex::POSNOR:
 		HR(device->CreateInputLayout(InputLayoutDesc::VertexPN, 2, blob->GetBufferPointer(),
 			blob->GetBufferSize(), &VertexPN));
 		break;
-	case POSTEX:
+	case Vertex::POSTEX:
 		HR(device->CreateInputLayout(InputLayoutDesc::VertexPT, 2, blob->GetBufferPointer(),
 			blob->GetBufferSize(), &VertexPT));
 		break;
-	case POSNORTEX:
+	case Vertex::POSNORTEX:
 		HR(device->CreateInputLayout(InputLayoutDesc::VertexPNT, 3, blob->GetBufferPointer(),
 			blob->GetBufferSize(), &VertexPNT));
 		break;
-	case  POSNORTEXTAN :
+	case  Vertex::POSNORTEXTAN:
 		HR(device->CreateInputLayout(InputLayoutDesc::VertexPNTTan, 4, blob->GetBufferPointer(),
 			blob->GetBufferSize(), &VertexPNTTan));
 		break;
-	case POSNOR_INS :
+	case Vertex::POSNOR_INS:
 		HR(device->CreateInputLayout(InputLayoutDesc::VertexPN_INS, 6, blob->GetBufferPointer(),
 			blob->GetBufferSize(), &VertexPN_INS)); 
 		break; 
-	case POSNORTEX_INS:
+	case Vertex::POSNORTEX_INS:
 		HR(device->CreateInputLayout(InputLayoutDesc::VertexPNT_INS, 7, blob->GetBufferPointer(),
 			blob->GetBufferSize(), &VertexPNT_INS));
 		break;

@@ -27,6 +27,51 @@ float DemoBase::AspectRatio()const
 	return static_cast<float>(mClientWidth) / mClientHeight;
 }
 
+void DemoBase::OnMouseDown(WPARAM btnState, int x, int y)
+{
+	mLastMousePos.x = x;
+	mLastMousePos.y = y;
+
+	SetCapture(mhMainWnd);
+}
+
+void DemoBase::OnMouseUp(WPARAM btnState, int x, int y)
+{
+	ReleaseCapture();
+}
+
+void DemoBase::OnMouseMove(WPARAM btnState, int x, int y)
+{
+	if ((btnState & MK_LBUTTON) != 0)
+	{
+		// Make each pixel correspond to a quarter of a degree.
+		float dx = XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
+		float dy = XMConvertToRadians(0.25f*static_cast<float>(y - mLastMousePos.y));
+
+		// Update angles based on input to orbit camera around box.
+		mTheta -= dx;
+		mPhi -= dy;
+
+		// Restrict the angle mPhi.
+		mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
+	}
+	else if ((btnState & MK_RBUTTON) != 0)
+	{
+		// Make each pixel correspond to 0.01 unit in the scene.
+		float dx = 0.1f*static_cast<float>(x - mLastMousePos.x);
+		float dy = 0.1f*static_cast<float>(y - mLastMousePos.y);
+
+		// Update the camera radius based on input.
+		mRadius += dx - dy;
+
+		// Restrict the radius.
+		mRadius = MathHelper::Clamp(mRadius, 1.0f, 10000.0f);
+	}
+
+	mLastMousePos.x = x;
+	mLastMousePos.y = y;
+}
+
 LRESULT DemoBase::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -165,10 +210,14 @@ md3dImmediateContext(0),
 mSwapChain(0),
 mDepthStencilBuffer(0),
 mRenderTargetView(0),
-mDepthStencilView(0)
+mDepthStencilView(0),
+mTheta(-0.49f*MathHelper::Pi),
+mPhi(0.48f*MathHelper::Pi)
 {
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
 	gd3dApp = this;
+	mLastMousePos.x = 0;
+	mLastMousePos.y = 0;
 }
 
 DemoBase::~DemoBase()
@@ -469,5 +518,4 @@ void DemoBase::CalculateFrameStats()
 		timeElapsed += 1.0f;
 	}
 }
-
 
