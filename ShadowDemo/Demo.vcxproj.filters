@@ -63,6 +63,7 @@
     <ClInclude Include="Camera.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="SkyBox.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameTimer.cpp">
@@ -104,6 +105,7 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="SkyBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\DemoShader.hlsl">
@@ -113,6 +115,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\DebugTexture.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkyBox.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

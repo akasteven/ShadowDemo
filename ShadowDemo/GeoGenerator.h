@@ -4,7 +4,6 @@
 #include "D3DUtil.h"
 #include <vector>
 
-
 class GeoGenerator
 {
 public:
@@ -18,6 +17,8 @@ public:
 	};
 
 	static void GenCuboid( float w, float h, float d, Mesh & mesh);
+
+	static void GenSphere(float radius, UINT sliceCnt, UINT stackCnt, Mesh & mesh);
 
 };
 

@@ -1,5 +1,13 @@
 #include "Vertex.h"
 
+
+const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::VertexP[1] =
+{
+	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+};
+
+
+
 const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::VertexPT[2] =
 {
 	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -51,7 +59,7 @@ const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::VertexPNT_INS[7] =
 	{ "WORLD", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D11_INPUT_PER_INSTANCE_DATA, 1 },
 };
 
-
+ID3D11InputLayout* InputLayouts::VertexP = 0;
 ID3D11InputLayout* InputLayouts::VertexPT = 0;
 ID3D11InputLayout* InputLayouts::VertexPNT = 0;
 ID3D11InputLayout * InputLayouts::VertexPNTTan = 0;
@@ -64,6 +72,8 @@ void InputLayouts::InitLayout(ID3D11Device* device, ID3DBlob * blob, Vertex::VER
 	switch (format)
 	{
 	case Vertex::POS:
+		HR(device->CreateInputLayout(InputLayoutDesc::VertexP, 1, blob->GetBufferPointer(),
+			blob->GetBufferSize(), &VertexP));
 		break;
 	case Vertex::POSCOL:
 		break;

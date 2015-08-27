@@ -85,6 +85,7 @@ class InputLayoutDesc
 {
 public:
 	// Init like const int A::a[4] = {0, 1, 2, 3}; in .cpp file.
+	static const D3D11_INPUT_ELEMENT_DESC VertexP[1];
 	static const D3D11_INPUT_ELEMENT_DESC VertexPT[2];
 	static const D3D11_INPUT_ELEMENT_DESC VertexPN[2];
 	static const D3D11_INPUT_ELEMENT_DESC VertexPNT[3];
@@ -99,6 +100,7 @@ public:
 	static void InitLayout(ID3D11Device* device, ID3DBlob * blob, Vertex::VERTEXFORMAT format);
 	static void DestroyAll();
 
+	static ID3D11InputLayout *VertexP;
 	static ID3D11InputLayout* VertexPT;     
 	static ID3D11InputLayout * VertexPN;
 	static ID3D11InputLayout* VertexPNT;

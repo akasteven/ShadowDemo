@@ -48,8 +48,8 @@ void DemoBase::OnMouseMove(WPARAM btnState, int x, int y)
 		float dx = XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
 		float dy = XMConvertToRadians(0.25f*static_cast<float>(y - mLastMousePos.y));
 
-		camera->Pitch(dy);
-		camera->Yaw(dx);
+		m_pCamera->Pitch(dy);
+		m_pCamera->Yaw(dx);
 	}
 
 
@@ -216,17 +216,17 @@ mPhi(0.48f*MathHelper::Pi)
 {
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
 	gd3dApp = this;
-	camera = new Camera();
+	m_pCamera = new Camera();
 	mLastMousePos.x = 0;
 	mLastMousePos.y = 0;
 }
 
 DemoBase::~DemoBase()
 {
-	if (camera)
+	if (m_pCamera)
 	{
-		delete camera;
-		camera = NULL;
+		delete m_pCamera;
+		m_pCamera = NULL;
 	}
 	
 	ReleaseCOM(mRenderTargetView);

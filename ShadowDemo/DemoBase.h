@@ -49,7 +49,7 @@ protected:
 	UINT      m4xMsaaQuality;
 
 	GameTimer mTimer;
-	Camera *camera;
+	Camera *m_pCamera;
 
 	ID3D11Device* md3dDevice;
 	ID3D11DeviceContext* md3dImmediateContext;

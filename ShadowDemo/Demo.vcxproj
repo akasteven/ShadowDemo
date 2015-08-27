@@ -24,6 +24,7 @@
     <ClInclude Include="MathUtility.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="ShadowMap.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
@@ -39,6 +40,7 @@
     <ClCompile Include="MathUtility.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +55,7 @@
     <FxCompile Include="Shaders\ShadowMap.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="Shaders\SkyBox.hlsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B7136610-BFC1-4EED-8520-84D6FB774C42}</ProjectGuid>

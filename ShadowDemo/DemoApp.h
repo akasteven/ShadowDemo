@@ -3,6 +3,7 @@
 #include "DemoBase.h"
 
 class ShadowMap;
+class SkyBox;
 
 class DemoApp :
 	public DemoBase
@@ -87,6 +88,8 @@ private:
 	//Shadow Map
 	ShadowMap *m_pShadowMap;
 	int  mShadowMapSize;
+
+	SkyBox * m_pSkybox; 
 
 	//Scene Parameter
 	UINT instanceCnt;

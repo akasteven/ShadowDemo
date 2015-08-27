@@ -2,6 +2,7 @@
 #include "Vertex.h"
 #include "RenderStates.h"
 #include "ShadowMap.h"
+#include "SkyBox.h"
 #include "GeoGenerator.h"
 #include "ConstantBufferDef.h"
 
@@ -32,6 +33,7 @@ m_pPillarSRV(0),
 m_pSampleLinear(0),
 m_pSampleShadowMap(0),
 m_pShadowMap(0),
+m_pSkybox(0),
 mShadowMapSize(2048),
 instanceCnt(100),
 pillarSize(4.0f),
@@ -50,6 +52,12 @@ DemoApp::~DemoApp()
 	{
 		delete m_pShadowMap;
 		m_pShadowMap = 0;
+	}
+
+	if (m_pSkybox)
+	{
+		delete m_pSkybox;
+		m_pSkybox = 0;
 	}
 
 	md3dImmediateContext->ClearState();
@@ -84,7 +92,7 @@ DemoApp::~DemoApp()
 void DemoApp::OnResize()
 {
 	DemoBase::OnResize();
-	camera->Setup(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
+	m_pCamera->Setup(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
 	//mProj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
 	md3dImmediateContext->VSSetConstantBuffers(1, 1, &m_pCBOnResize);
 	md3dImmediateContext->PSSetConstantBuffers(1, 1, &m_pCBOnResize);
@@ -318,8 +326,8 @@ void DemoApp::SetUpSceneConsts()
 	md3dImmediateContext->VSSetConstantBuffers(0, 1, &m_pCBNeverChanges);
 	md3dImmediateContext->PSSetConstantBuffers(0, 1, &m_pCBNeverChanges);
 
-	camera->Setup(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
-	camera->SetPosition(XMFLOAT3(30.0f, 30.0f, -450.0f));
+	m_pCamera->Setup(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
+	m_pCamera->SetPosition(XMFLOAT3(30.0f, 30.0f, -450.0f));
 
 	BuildShadowMapMatrices();
 }
@@ -436,6 +444,8 @@ bool DemoApp::Init()
 		return false;
 
 	m_pShadowMap = new ShadowMap(md3dDevice, mShadowMapSize, mShadowMapSize);
+	m_pSkybox = new SkyBox( md3dDevice,  500, 50, 50, "test");
+
 	CreateLights();
 	CreateShaders();
 	CreateGeometry();
@@ -450,27 +460,27 @@ bool DemoApp::Init()
 void DemoApp::UpdateScene(float dt)
 {
 	if (GetAsyncKeyState('W') & 0x8000)
-		camera->MoveForward(10.0f * dt);
+		m_pCamera->MoveForward(10.0f * dt);
 	if (GetAsyncKeyState('S') & 0x8000)
-		camera->MoveForward(-10.0f*dt);
+		m_pCamera->MoveForward(-10.0f*dt);
 	if (GetAsyncKeyState('D') & 0x8000)
-		camera->MoveRight(10.0f *dt);
+		m_pCamera->MoveRight(10.0f *dt);
 	if (GetAsyncKeyState('A') & 0x8000)
-		camera->MoveRight(-10.0f *dt);
+		m_pCamera->MoveRight(-10.0f *dt);
 	if (GetAsyncKeyState('E') & 0x8000)
-		camera->Elevate(10.0f *dt);
+		m_pCamera->Elevate(10.0f *dt);
 	if (GetAsyncKeyState('Q') & 0x8000)
-		camera->Elevate(-10.0f *dt);
+		m_pCamera->Elevate(-10.0f *dt);
 
 	//Update Per Frame Constant Buffer
 	CBPerFrame cbPerFrame;
-	cbPerFrame.eyePos = camera->GetPos();
+	cbPerFrame.eyePos = m_pCamera->GetPos();
 	md3dImmediateContext->UpdateSubresource(m_pCBPerFrame, 0, NULL, &cbPerFrame, 0, 0);
 	md3dImmediateContext->VSSetConstantBuffers(2, 1, &m_pCBPerFrame);
 	md3dImmediateContext->PSSetConstantBuffers(2, 1, &m_pCBPerFrame);
 	mWorld = XMMatrixIdentity();
 
-	camera->Update();
+	m_pCamera->Update();
 }
 
 void DemoApp::DrawScene()
@@ -508,7 +518,7 @@ void DemoApp::DrawScene()
 	CBPerObject cbPerObj;
 	cbPerObj.matWorld = XMMatrixTranspose(mWorld);
 	cbPerObj.matWorldInvTranspose = XMMatrixTranspose(MathHelper::InverseTranspose(mWorld));
-	cbPerObj.matWVP = XMMatrixTranspose(mWorld * camera->GetViewProjMatrix());
+	cbPerObj.matWVP = XMMatrixTranspose(mWorld * m_pCamera->GetViewProjMatrix());
 	cbPerObj.matLightWVPT = XMMatrixTranspose(mWorld * mLightVPT);
 	cbPerObj.isInstancing = 1;
 	cbPerObj.material.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
@@ -541,11 +551,16 @@ void DemoApp::DrawScene()
 	//Draw Ground
 	md3dImmediateContext->DrawIndexed(36, 0, 0);
 
-	//Render mini window displaying shadow map
+	//Draw Skybox
+	m_pSkybox->Draw(md3dImmediateContext, m_pCamera);
+
+	md3dImmediateContext->RSSetState(0);
+	md3dImmediateContext->OMSetDepthStencilState(0, 0);
+
+	//Render mini window displaying shadow  map
 	RenderMiniWindow();
 
 	HR(mSwapChain->Present(0, 0));
-
 }
 
 
