@@ -30,6 +30,7 @@ private:
 	ID3D11PixelShader *m_pPS;
 
 	ID3D11SamplerState * m_pSampleTriLinear;
+	ID3D11DepthStencilState * m_pDSS;
 
 	UINT idxCnt;
 	float mRadius;

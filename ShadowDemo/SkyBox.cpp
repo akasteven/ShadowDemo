@@ -11,6 +11,7 @@ m_pIB(0),
 m_pSkySRV(0),
 m_pVS(0),
 m_pPS(0),
+m_pDSS(0),
 m_pCBPerFrame(0),
 mRadius(radius),
 idxCnt(0)
@@ -19,8 +20,8 @@ idxCnt(0)
 	GeoGenerator::GenSphere(mRadius, sliceCnt, stackCnt, skyMesh);
 
 	idxCnt = skyMesh.indices.size();
+
 	std::vector<Vertex::VertexBase> vertices(skyMesh.vertices.size());
-	
 	for (UINT i = 0; i < skyMesh.vertices.size(); i++)
 		vertices[i].Pos = skyMesh.vertices[i].Pos;
 
@@ -60,7 +61,6 @@ idxCnt(0)
 	HR(device->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), NULL, &m_pPS));
 	ReleaseCOM(pBlob);
 
-
 	D3D11_BUFFER_DESC cbDesc;
 	ZeroMemory(&cbDesc, sizeof(cbDesc));
 	cbDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -70,20 +70,26 @@ idxCnt(0)
 	cbDesc.ByteWidth = sizeof(CBPerFrame);
 	HR(device->CreateBuffer(&cbDesc, 0, &m_pCBPerFrame));
 
-	D3D11_SAMPLER_DESC desc;
-	ZeroMemory(&desc, sizeof(desc));
-	desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	desc.MinLOD = 0;
-	desc.MaxLOD = D3D11_FLOAT32_MAX;
-	HR(device->CreateSamplerState(&desc, &m_pSampleTriLinear));
+	D3D11_SAMPLER_DESC sDesc;
+	ZeroMemory(&sDesc, sizeof(sDesc));
+	sDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sDesc.MinLOD = 0;
+	sDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	HR(device->CreateSamplerState(&sDesc, &m_pSampleTriLinear));
 
-	HR(D3DX11CreateShaderResourceViewFromFile(device, L"..//Resources//Sunsetcube.dds", 0, 0, &m_pSkySRV, 0));
+	HR(D3DX11CreateShaderResourceViewFromFile(device, L"..//Resources//Snowcube.dds", 0, 0, &m_pSkySRV, 0));
+
+	D3D11_DEPTH_STENCIL_DESC dssDesc;
+	dssDesc.DepthEnable = true;
+	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	dssDesc.StencilEnable = false;
+	HR(device->CreateDepthStencilState(&dssDesc, &m_pDSS));
 }
-
 
 SkyBox::~SkyBox()
 {
@@ -94,6 +100,7 @@ SkyBox::~SkyBox()
 	ReleaseCOM(m_pPS);
 	ReleaseCOM(m_pCBPerFrame);
 	ReleaseCOM(m_pSampleTriLinear);
+	ReleaseCOM(m_pDSS);
 }
 
 void SkyBox::Draw(ID3D11DeviceContext *context, Camera *camera)
@@ -112,6 +119,7 @@ void SkyBox::Draw(ID3D11DeviceContext *context, Camera *camera)
 	context->IASetInputLayout(InputLayouts::VertexP);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->RSSetState(RenderStates::NoCullRS);
+	context->OMSetDepthStencilState(m_pDSS, 0);
 
 	context->VSSetShader(m_pVS, NULL, 0);
 	context->VSSetConstantBuffers(0, 1, &m_pCBPerFrame);

@@ -444,7 +444,7 @@ bool DemoApp::Init()
 		return false;
 
 	m_pShadowMap = new ShadowMap(md3dDevice, mShadowMapSize, mShadowMapSize);
-	m_pSkybox = new SkyBox( md3dDevice,  500, 50, 50, "test");
+	m_pSkybox = new SkyBox( md3dDevice,  1000, 50, 50, "test");
 
 	CreateLights();
 	CreateShaders();

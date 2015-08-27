@@ -55,7 +55,9 @@
     <FxCompile Include="Shaders\ShadowMap.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Shaders\SkyBox.hlsl" />
+    <FxCompile Include="Shaders\SkyBox.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B7136610-BFC1-4EED-8520-84D6FB774C42}</ProjectGuid>
@@ -120,7 +122,9 @@ fxc /Zi /Od /T ps_5_0 /E PS /Fc Shaders\ShadowPS.asm /Fo Shaders\shadowps.fxo Sh
 fxc /Zi /Od /T vs_5_0 /E VS /Fc Shaders\VS.asm /Fo Shaders\vs.fxo Shaders\DemoShader.hlsl
 fxc /Zi /Od /T ps_5_0 /E PS /Fc Shaders\PS.asm /Fo Shaders\ps.fxo Shaders\DemoShader.hlsl
 fxc /Zi /Od /T vs_5_0 /E VS /Fc Shaders\DebugTextureVS.asm /Fo Shaders\debugtexturevs.fxo Shaders\DebugTexture.hlsl
-fxc /Zi /Od /T ps_5_0 /E PS /Fc Shaders\DebugTexturePS.asm /Fo Shaders\debugtextureps.fxo Shaders\DebugTexture.hlsl</Command>
+fxc /Zi /Od /T ps_5_0 /E PS /Fc Shaders\DebugTexturePS.asm /Fo Shaders\debugtextureps.fxo Shaders\DebugTexture.hlsl
+fxc /Zi /Od /T vs_5_0 /E VS /Fc Shaders\SkyBoxVS.asm /Fo Shaders\SkyBoxVS.fxo Shaders\SkyBox.hlsl
+fxc /Zi /Od /T ps_5_0 /E PS /Fc Shaders\SkyBoxPS.asm /Fo Shaders\SkyBoxPS.fxo Shaders\SkyBox.hlsl</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

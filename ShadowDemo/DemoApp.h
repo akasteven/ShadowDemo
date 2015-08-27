@@ -89,6 +89,7 @@ private:
 	ShadowMap *m_pShadowMap;
 	int  mShadowMapSize;
 
+	//Sky box
 	SkyBox * m_pSkybox; 
 
 	//Scene Parameter
