@@ -14,6 +14,7 @@
     <ClInclude Include="AABB.h" />
     <ClInclude Include="BoundingSphere.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CascadedShadowMap.h" />
     <ClInclude Include="ConstantBufferDef.h" />
     <ClInclude Include="D3DUtil.h" />
     <ClInclude Include="DemoApp.h" />
@@ -31,6 +32,7 @@
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="BoundingSphere.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CascadedShadowMap.cpp" />
     <ClCompile Include="D3DUtil.cpp" />
     <ClCompile Include="DemoApp.cpp" />
     <ClCompile Include="DemoBase.cpp" />

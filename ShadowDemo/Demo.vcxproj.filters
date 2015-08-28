@@ -66,6 +66,9 @@
     <ClInclude Include="SkyBox.h">
       <Filter>Effects</Filter>
     </ClInclude>
+    <ClInclude Include="CascadedShadowMap.h">
+      <Filter>Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameTimer.cpp">
@@ -108,6 +111,9 @@
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="SkyBox.cpp">
+      <Filter>Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="CascadedShadowMap.cpp">
       <Filter>Effects</Filter>
     </ClCompile>
   </ItemGroup>
