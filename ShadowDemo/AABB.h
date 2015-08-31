@@ -16,6 +16,7 @@ public:
 
 	void Clear(){ mMins = XMFLOAT3(0.0f, 0.0f, 0.0f); mMaxs = XMFLOAT3(0.0f, 0.0f, 0.0f); }
 	void BuildFromVertices(Vertex::VertexBase * vertex, int numVer);
+
 	void AddVertex(const Vertex::VertexBase & vertex);
 
 	float GetRadius(){ return sqrtf(mExtents.x * mExtents.x + mExtents.y * mExtents.y + mExtents.z * mExtents.z); }
