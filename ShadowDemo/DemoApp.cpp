@@ -5,6 +5,7 @@
 #include "SkyBox.h"
 #include "GeoGenerator.h"
 #include "ConstantBufferDef.h"
+#include "AABB.h"
 
 DemoApp::DemoApp(HINSTANCE hInstance)
 :DemoBase(hInstance),

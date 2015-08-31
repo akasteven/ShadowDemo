@@ -27,6 +27,8 @@ public:
 	XMMATRIX GetProjMatrix() const;
 	XMMATRIX GetViewProjMatrix() const;
 	XMFLOAT3 GetPos() const;
+	float GetNearZ() const;
+	float GetFarZ() const;
 
 private:
 

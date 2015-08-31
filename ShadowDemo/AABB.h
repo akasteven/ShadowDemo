@@ -4,27 +4,31 @@
 #include <xnamath.h>
 #include "MathUtility.h"
 #include "Vertex.h"
+#include <vector>
 
 class AABB
 {
 public:
 
-	AABB() :Center(0.0f, 0.0f, 0.0f), Extents(0.0f, 0.0f, 0.0f), Mins(0.0f, 0.0f, 0.0f), Maxs(0.0f, 0.0f, 0.0f){}
-	AABB(const XMFLOAT3 &mins, const XMFLOAT3 &maxs) :Mins(mins), Maxs(maxs){ ComputeCenterExt(); }
+	AABB() :mCenter(0.0f, 0.0f, 0.0f), mExtents(0.0f, 0.0f, 0.0f), mMins(0.0f, 0.0f, 0.0f), mMaxs(0.0f, 0.0f, 0.0f){}
+	AABB(const XMFLOAT3 &center, const XMFLOAT3 &ext) :mCenter(center), mExtents(ext){ ComputeMinMax(); }
 	~AABB();
 
-	void Clear(){ Mins = XMFLOAT3(0.0f, 0.0f, 0.0f); Maxs = XMFLOAT3(0.0f, 0.0f, 0.0f); }
+	void Clear(){ mMins = XMFLOAT3(0.0f, 0.0f, 0.0f); mMaxs = XMFLOAT3(0.0f, 0.0f, 0.0f); }
 	void BuildFromVertices(Vertex::VertexBase * vertex, int numVer);
 	void AddVertex(const Vertex::VertexBase & vertex);
+
+	float GetRadius(){ return sqrtf(mExtents.x * mExtents.x + mExtents.y * mExtents.y + mExtents.z * mExtents.z); }
+	void GetCorners(std::vector<XMVECTOR>& corners);
+	
 	void ComputeCenterExt();
 	void ComputeMinMax();
-	float GetRadius(){ return sqrtf( Extents.x * Extents.x + Extents.y * Extents.y + Extents.z * Extents.z ); }
 
-public:
+public:				
 
-	XMFLOAT3 Center;
-	XMFLOAT3 Extents;
-	XMFLOAT3 Mins;
-	XMFLOAT3 Maxs;
+	XMFLOAT3 mCenter;
+	XMFLOAT3 mExtents;
+	XMFLOAT3 mMins;
+	XMFLOAT3 mMaxs;
 };
 

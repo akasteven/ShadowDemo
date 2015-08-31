@@ -84,6 +84,16 @@ XMMATRIX Camera::GetViewProjMatrix() const
 	return XMMatrixMultiply(mView, mProj);
 }
 
+float Camera::GetNearZ() const
+{
+	return nearZ;
+}
+
+float Camera::GetFarZ() const
+{
+	return farZ;
+}
+
 void Camera::Setup(float fv, float asp, float nz, float fz)
 {
 	fov = fv;

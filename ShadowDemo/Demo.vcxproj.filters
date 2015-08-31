@@ -69,6 +69,9 @@
     <ClInclude Include="CascadedShadowMap.h">
       <Filter>Effects</Filter>
     </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>Geometries</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameTimer.cpp">
@@ -115,6 +118,9 @@
     </ClCompile>
     <ClCompile Include="CascadedShadowMap.cpp">
       <Filter>Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="Frustum.cpp">
+      <Filter>Geometries</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

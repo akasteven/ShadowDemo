@@ -19,6 +19,7 @@
     <ClInclude Include="D3DUtil.h" />
     <ClInclude Include="DemoApp.h" />
     <ClInclude Include="DemoBase.h" />
+    <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="GeoGenerator.h" />
     <ClInclude Include="Light.h" />
@@ -37,6 +38,7 @@
     <ClCompile Include="DemoApp.cpp" />
     <ClCompile Include="DemoBase.cpp" />
     <ClCompile Include="Entry.cpp" />
+    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="GeoGenerator.cpp" />
     <ClCompile Include="MathUtility.cpp" />

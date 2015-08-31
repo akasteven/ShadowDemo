@@ -20,7 +20,5 @@ void BoundingSphere::AddVertex(const Vertex::VertexPNTTan &vertex)
 
 void BoundingSphere::BuildFromAABB(AABB * aabb)
 {
-	Center = aabb->Center;
-	Radius = aabb->GetRadius();
 }
 
