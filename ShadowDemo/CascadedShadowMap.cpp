@@ -7,25 +7,70 @@ CascadedShadowMap::CascadedShadowMap(ID3D11Device *device, ID3D11DeviceContext *
 : m_pDevice(device),
 m_pContext(context),
 m_pConfig(config),
+m_pCSMDSV(0),
+m_pCSMSRV(0),
 m_pLightCamera(lightCamera),
 m_pViewCamera (viewCamera)
 {
 
 }
 
-
 CascadedShadowMap::~CascadedShadowMap()
 {
+	ReleaseCOM(m_pShadowCascadesTex);
+	ReleaseCOM(m_pCSMDSV);
+	ReleaseCOM(m_pCSMSRV);
 }
 
-
-
-void CascadedShadowMap::ComputeTightNearFar(float& fNearPlane,
-	float& fFarPlane,
-	FXMVECTOR vLightCameraOrthographicMin,
-	FXMVECTOR vLightCameraOrthographicMax,
-	XMVECTOR* pvPointsInCameraView)
+void CascadedShadowMap::Init()
 {
+	//Create viewports for cascades renderings
+	for (int i = 0; i < m_pConfig->mCascadesCnt; i++)
+	{
+		mCascadesVP[i].Height = static_cast<float>(m_pConfig->mCascadeResolution);
+		mCascadesVP[i].Width = static_cast<float>(m_pConfig->mCascadeResolution);
+		mCascadesVP[i].MaxDepth = 1.0f;
+		mCascadesVP[i].MinDepth = 0.0f;
+		mCascadesVP[i].TopLeftX = static_cast<float>(m_pConfig->mCascadeResolution * i);
+		mCascadesVP[i].TopLeftY = 0;
+	}
+
+	//Create shadow map texture, one single texture containing all the cascades
+	D3D11_TEXTURE2D_DESC texDesc; 
+	texDesc.Width = m_pConfig->mCascadeResolution * m_pConfig->mCascadesCnt;
+	texDesc.Height = m_pConfig->mCascadeResolution;
+	texDesc.MipLevels = 1; 
+	texDesc.MipLevels = 1;
+	texDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;	
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+
+	HR(m_pDevice->CreateTexture2D(&texDesc, 0, &m_pShadowCascadesTex));
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	dsvDesc.Flags = 0;
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Texture2D.MipSlice = 0;
+	HR(m_pDevice->CreateDepthStencilView(m_pShadowCascadesTex, &dsvDesc, &m_pCSMDSV));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = texDesc.MipLevels;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	HR(m_pDevice->CreateShaderResourceView(m_pShadowCascadesTex, &srvDesc, &m_pCSMSRV));
+}
+
+void CascadedShadowMap::ComputeTightNearFar(float& fNearPlane, float& fFarPlane, const AABB &subFrustumAABB, const std::vector<XMVECTOR> &sceneAABBCorners )  const 
+{
+	// 1. Iterate over all 12 triangles of the AABB.  
+	// 2. Clip the triangles against each plane. Create new triangles as needed.
+	// 3. Find the min and max z values as the near and far plane.
 
 	// Initialize the near and far planes
 	fNearPlane = FLT_MAX;
@@ -34,9 +79,9 @@ void CascadedShadowMap::ComputeTightNearFar(float& fNearPlane,
 	Triangle triangleList[16];
 	INT iTriangleCnt = 1;
 
-	triangleList[0].pt[0] = pvPointsInCameraView[0];
-	triangleList[0].pt[1] = pvPointsInCameraView[1];
-	triangleList[0].pt[2] = pvPointsInCameraView[2];
+	triangleList[0].pt[0] = sceneAABBCorners[0];
+	triangleList[0].pt[1] = sceneAABBCorners[1];
+	triangleList[0].pt[2] = sceneAABBCorners[2];
 	triangleList[0].culled = false;
 
 	// These are the indices used to tesselate an AABB into a list of triangles.
@@ -58,18 +103,17 @@ void CascadedShadowMap::ComputeTightNearFar(float& fNearPlane,
 	// 3. Find the min and max z values as the near and far plane.
 
 	//This is easier because the triangles are in camera spacing making the collisions tests simple comparisions.
-
-	float fLightCameraOrthographicMinX = XMVectorGetX(vLightCameraOrthographicMin);
-	float fLightCameraOrthographicMaxX = XMVectorGetX(vLightCameraOrthographicMax);
-	float fLightCameraOrthographicMinY = XMVectorGetY(vLightCameraOrthographicMin);
-	float fLightCameraOrthographicMaxY = XMVectorGetY(vLightCameraOrthographicMax);
+	float fLightCameraOrthographicMinX = subFrustumAABB.mMins.x;
+	float fLightCameraOrthographicMaxX = subFrustumAABB.mMaxs.x;
+	float fLightCameraOrthographicMinY = subFrustumAABB.mMins.y;
+	float fLightCameraOrthographicMaxY = subFrustumAABB.mMaxs.y;
 
 	for (INT AABBTriIter = 0; AABBTriIter < 12; ++AABBTriIter)
 	{
 
-		triangleList[0].pt[0] = pvPointsInCameraView[iAABBTriIndexes[AABBTriIter * 3 + 0]];
-		triangleList[0].pt[1] = pvPointsInCameraView[iAABBTriIndexes[AABBTriIter * 3 + 1]];
-		triangleList[0].pt[2] = pvPointsInCameraView[iAABBTriIndexes[AABBTriIter * 3 + 2]];
+		triangleList[0].pt[0] = sceneAABBCorners[iAABBTriIndexes[AABBTriIter * 3 + 0]];
+		triangleList[0].pt[1] = sceneAABBCorners[iAABBTriIndexes[AABBTriIter * 3 + 1]];
+		triangleList[0].pt[2] = sceneAABBCorners[iAABBTriIndexes[AABBTriIter * 3 + 2]];
 		iTriangleCnt = 1;
 		triangleList[0].culled = FALSE;
 
@@ -117,7 +161,7 @@ void CascadedShadowMap::ComputeTightNearFar(float& fNearPlane,
 						for (INT triPtIter = 0; triPtIter < 3; ++triPtIter)
 						{
 							if (XMVectorGetX(triangleList[triIter].pt[triPtIter]) >
-								XMVectorGetX(vLightCameraOrthographicMin))
+								subFrustumAABB.mMins.x)
 							{
 								iPointPassesCollision[triPtIter] = 1;
 							}
@@ -133,7 +177,7 @@ void CascadedShadowMap::ComputeTightNearFar(float& fNearPlane,
 						for (INT triPtIter = 0; triPtIter < 3; ++triPtIter)
 						{
 							if (XMVectorGetX(triangleList[triIter].pt[triPtIter]) <
-								XMVectorGetX(vLightCameraOrthographicMax))
+								subFrustumAABB.mMaxs.x)
 							{
 								iPointPassesCollision[triPtIter] = 1;
 							}
@@ -149,7 +193,7 @@ void CascadedShadowMap::ComputeTightNearFar(float& fNearPlane,
 						for (INT triPtIter = 0; triPtIter < 3; ++triPtIter)
 						{
 							if (XMVectorGetY(triangleList[triIter].pt[triPtIter]) >
-								XMVectorGetY(vLightCameraOrthographicMin))
+								subFrustumAABB.mMins.y)
 							{
 								iPointPassesCollision[triPtIter] = 1;
 							}
@@ -165,7 +209,7 @@ void CascadedShadowMap::ComputeTightNearFar(float& fNearPlane,
 						for (INT triPtIter = 0; triPtIter < 3; ++triPtIter)
 						{
 							if (XMVectorGetY(triangleList[triIter].pt[triPtIter]) <
-								XMVectorGetY(vLightCameraOrthographicMax))
+								subFrustumAABB.mMaxs.y)
 							{
 								iPointPassesCollision[triPtIter] = 1;
 							}
@@ -302,13 +346,13 @@ void CascadedShadowMap::ComputeTightNearFar(float& fNearPlane,
 
 }
 
-void CascadedShadowMap::BuildCascadeProj( AABB * aabb )
+void CascadedShadowMap::BuildCascadeViewProjs( AABB * aabb )
 {
 	m_pSceneAABB = aabb;
 
 	//Get the eight corners of the scene AABB
 	std::vector<XMVECTOR> sceneAABBCornersLightSpace;
-	aabb->GetCorners(sceneAABBCornersLightSpace);
+	m_pSceneAABB->GetCorners(sceneAABBCornersLightSpace);
 	//Transform the corners into light camera space
 	for (int i = 0; i < sceneAABBCornersLightSpace.size(); i++)
 		sceneAABBCornersLightSpace[i] = XMVector4Transform(sceneAABBCornersLightSpace[i], m_pLightCamera->GetViewMatrix());
@@ -317,6 +361,8 @@ void CascadedShadowMap::BuildCascadeProj( AABB * aabb )
 
 	XMVECTOR det;
 	XMMATRIX matInverseViewCamera = XMMatrixInverse(&det, m_pViewCamera->GetViewMatrix());
+
+	std::vector<AABB> subFrustumAABBs;
 
 	//Calculate the subfrustrum 
 	float subFrustrumBegin = 0.0f;
@@ -338,16 +384,34 @@ void CascadedShadowMap::BuildCascadeProj( AABB * aabb )
 			subFrustumCorners[i] = XMVector4Transform(subFrustumCorners[i], matInverseViewCamera * m_pLightCamera->GetViewMatrix());
 
 		//Generate AABB for sub-frustum in light camera space
-		AABB * subFrustumAABB = new AABB();
-		subFrustumAABB->BuildFromVertices(subFrustumCorners);
+
+		subFrustumAABBs[i].BuildFromVertices(subFrustumCorners);
 
 		//Compute a tight depth bound for the current cascade
 		float nearZ, farZ;
-		ComputeTightNearFar(nearZ, farZ, subFrustumAABB, sceneAABBCornersLightSpace);
+		ComputeTightNearFar(nearZ, farZ, subFrustumAABBs[i], sceneAABBCornersLightSpace);
+
+		mCascadesOrthoProj[i] = XMMatrixOrthographicOffCenterLH(
+			subFrustumAABBs[i].mMins.x, 
+			subFrustumAABBs[i].mMaxs.x,
+			subFrustumAABBs[i].mMins.y,
+			subFrustumAABBs[i].mMaxs.y,
+			nearZ,farZ );
 
 		subFrustrumBegin = m_pConfig->mSubFrustumCoveragePct[i];
 	}
 
+	mCascadesView = m_pLightCamera->GetViewMatrix();
+}
 
+ID3D11ShaderResourceView * CascadedShadowMap::DepthShaderResourceView()
+{
+	return m_pCSMSRV;
+}
 
+void CascadedShadowMap::BindShadowMapDSV()
+{
+	ID3D11RenderTargetView * renderTargets[1] = { 0 };
+	m_pContext->OMSetRenderTargets(1, renderTargets, m_pCSMDSV);
+	m_pContext->ClearDepthStencilView(m_pCSMDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }

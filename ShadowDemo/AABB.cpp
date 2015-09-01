@@ -19,7 +19,6 @@ void AABB::BuildFromVertices(Vertex::VertexBase * vertex, int numVer)
 	ComputeCenterExt();
 }
 
-
 void AABB::BuildFromVertices(std::vector<XMVECTOR> vertices)
 {
 	Clear();
@@ -37,7 +36,6 @@ void AABB::BuildFromVertices(std::vector<XMVECTOR> vertices)
 	XMStoreFloat3(&mMins, min);
 	ComputeCenterExt();
 }
-
 
 void AABB::AddVertex(const Vertex::VertexBase & vertex)
 {
