@@ -28,8 +28,16 @@ public:
 	void BuildCascadeProj(AABB * aabb);
 
 private:
+	
+	//Used for ComputeTightNearFar function
+	struct Triangle
+	{
+		XMVECTOR pt[3];
+		BOOL culled;
+	};
 
-	void ComputeSubFrustumCorners(float beg, float end, const XMMATRIX & proj, std::vector<XMVECTOR> & corners);
+	//Compute tight near and far planes for each orthographic projection by insecting subfrustum AABB with scene AABB in light camera space
+	void ComputeTightNearFar(float& fNearPlane, float& fFarPlane, AABB * subFrustumAABB, std::vector<XMVECTOR> &sceneAABBCorners);
 
 	//Configuration of CSM
 	CSMConfig * m_pConfig;

@@ -16,6 +16,8 @@ public:
 
 	void Clear(){ mMins = XMFLOAT3(0.0f, 0.0f, 0.0f); mMaxs = XMFLOAT3(0.0f, 0.0f, 0.0f); }
 	void BuildFromVertices(Vertex::VertexBase * vertex, int numVer);
+	void BuildFromVertices(std::vector<XMVECTOR> vertices);
+
 
 	void AddVertex(const Vertex::VertexBase & vertex);
 

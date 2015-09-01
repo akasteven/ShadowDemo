@@ -19,6 +19,26 @@ void AABB::BuildFromVertices(Vertex::VertexBase * vertex, int numVer)
 	ComputeCenterExt();
 }
 
+
+void AABB::BuildFromVertices(std::vector<XMVECTOR> vertices)
+{
+	Clear();
+
+	XMVECTOR max = XMLoadFloat3(&mMaxs);
+	XMVECTOR min = XMLoadFloat3(&mMins);
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		max = XMVectorMax(max, vertices[i]);
+		min = XMVectorMin(min, vertices[i]);
+	}
+
+	XMStoreFloat3(&mMaxs, max);
+	XMStoreFloat3(&mMins, min);
+	ComputeCenterExt();
+}
+
+
 void AABB::AddVertex(const Vertex::VertexBase & vertex)
 {
 	if (vertex.Pos.x >mMaxs.x)	mMaxs.x = vertex.Pos.x;
