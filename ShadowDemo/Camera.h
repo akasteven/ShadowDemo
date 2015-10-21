@@ -32,9 +32,9 @@ public:
 
 private:
 
-	XMMATRIX mView;
-	XMMATRIX mProj;
-	XMMATRIX mViewProj;
+	XMFLOAT4X4 mView;
+	XMFLOAT4X4 mProj;
+	XMFLOAT4X4 mViewProj;
 
 	float fov;
 	float aspectRatio;

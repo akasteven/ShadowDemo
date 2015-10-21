@@ -541,7 +541,7 @@ void DemoApp::DrawScene()
 	//Draw Pillars
 	md3dImmediateContext->DrawIndexedInstanced(36, instanceCnt, 0, 0, 0);
 
-	UINT stride = sizeof(Vertex::VertexPNT);
+	UINT stride = sizeof(Vertex::VertexPNT);  
 	UINT offset = 0;
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &m_pGroundVertexBuffer, &stride, &offset);
 	md3dImmediateContext->IASetIndexBuffer(m_pGroundIndexBuffer, DXGI_FORMAT_R32_UINT, 0);

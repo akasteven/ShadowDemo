@@ -71,17 +71,17 @@ void Camera::Yaw(float x)
 
 XMMATRIX Camera::GetViewMatrix() const
 {
-	return mView;
+	return XMLoadFloat4x4(&mView);
 }
 
 XMMATRIX Camera::GetProjMatrix() const
 {
-	return mProj;
+	return XMLoadFloat4x4(&mProj);
 }
 
 XMMATRIX Camera::GetViewProjMatrix() const
 {
-	return XMMatrixMultiply(mView, mProj);
+	return XMMatrixMultiply(GetViewMatrix(), GetProjMatrix());
 }
 
 float Camera::GetNearZ() const
@@ -100,7 +100,8 @@ void Camera::Setup(float fv, float asp, float nz, float fz)
 	aspectRatio = asp;
 	nearZ = nz;
 	farZ = fz;
-	mProj = XMMatrixPerspectiveFovLH( fov, asp, nz, fz );
+	XMMATRIX P = XMMatrixPerspectiveFovLH(fv, asp, nz, fz);
+	XMStoreFloat4x4(&mProj, P);
 }
 
 void Camera::Update()
@@ -122,10 +123,11 @@ void Camera::Update()
 	XMStoreFloat3(&mUp, u);
 	XMStoreFloat3(&mLook, t);
 
-	mView = XMMATRIX(
+	XMMATRIX  V = XMMATRIX(
 		mRight.x, mUp.x, mLook.x, 0.0f,
 		mRight.y, mUp.y, mLook.y, 0.0f,
 		mRight.z, mUp.z, mLook.z, 0.0f,
 		x, y, z, 1.0f );
 
+	XMStoreFloat4x4(&mView, V);
 }
