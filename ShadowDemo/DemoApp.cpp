@@ -93,7 +93,6 @@ DemoApp::~DemoApp()
 void DemoApp::OnResize()
 {
 	DemoBase::OnResize();
-	m_pCamera->Setup(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
 	//mProj = XMMatrixPerspectiveFovLH(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
 	md3dImmediateContext->VSSetConstantBuffers(1, 1, &m_pCBOnResize);
 	md3dImmediateContext->PSSetConstantBuffers(1, 1, &m_pCBOnResize);

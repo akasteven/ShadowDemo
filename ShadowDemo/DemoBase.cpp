@@ -393,6 +393,8 @@ void DemoBase::OnResize()
 	mScreenViewport.MaxDepth = 1.0f;
 
 	md3dImmediateContext->RSSetViewports(1, &mScreenViewport);
+
+	m_pCamera->Setup(XM_PIDIV4, mClientWidth / (float)mClientHeight, 0.01f, 1000.0f);
 }
 
 bool DemoBase::InitDirect3D()

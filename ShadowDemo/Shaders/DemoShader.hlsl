@@ -123,7 +123,7 @@ float4 PS( PS_INPUT input) : SV_Target
 
 	float texColor = txDiffuse.Sample(samLinear, input.Tex);
 
-	float4 litColor = texColor * (ambient + diffuse) + specular;
+	float4 litColor = texColor * (ambient+ diffuse) + specular;
 	litColor.a = 1.0f;
 
 	return litColor;
